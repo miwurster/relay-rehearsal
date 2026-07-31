@@ -308,11 +308,11 @@ describe("listing todos in due-date order", () => {
   it("applies to the open filter", () => {
     const list = new TodoList();
     const later = list.add("buy bread", new Date("2026-08-10"));
-    const soonest = list.add("buy milk", new Date("2026-08-01"));
+    const middle = list.add("buy eggs", new Date("2026-08-05"));
     list.complete(later.id);
-    const another = list.add("buy eggs", new Date("2026-08-05"));
+    const soonest = list.add("buy milk", new Date("2026-08-01"));
 
-    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([soonest.id, another.id]);
+    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([soonest.id, middle.id]);
   });
 
   it("applies to the completed filter", () => {

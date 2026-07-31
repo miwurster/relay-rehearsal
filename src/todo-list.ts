@@ -5,7 +5,7 @@ import type { Todo, TodoId } from "./todo.js";
 export type TodoFilter = "all" | "open" | "completed";
 
 /** What order a listing comes back in. */
-export type TodoOrder = "due-date";
+export type TodoOrder = "insertion" | "due-date";
 
 /** What the list measures due dates against. Answers the current point in time. */
 export type Clock = () => Date;
@@ -14,7 +14,8 @@ export type Clock = () => Date;
  * A list of todos, held in memory, with ids it hands out itself.
  *
  * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * were added when no other order is asked for, and adding never reorders what
+ * is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -63,12 +64,13 @@ export class TodoList {
   }
 
   /**
-   * The todos the filter asks for, in the order they were added.
+   * The todos the filter asks for, in the order they were added when no other
+   * order is asked for.
    *
    * Asked for in `"due-date"` order, dated todos come back soonest due date first,
    * every undated todo after every dated one, each stable within its own group.
    */
-  list(filter: TodoFilter = "all", order?: TodoOrder): Todo[] {
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const todos = this.select((todo) => matches(todo, filter));
     return order === "due-date" ? sortByDueDate(todos) : todos;
   }
@@ -139,8 +141,8 @@ function sortByDueDate(todos: Todo[]): Todo[] {
   return [...todos].sort(compareByDueDate);
 }
 
-function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
-  if (b.dueDate === undefined) return -1;
-  return a.dueDate.getTime() - b.dueDate.getTime();
+function compareByDueDate(first: Todo, second: Todo): number {
+  if (first.dueDate === undefined) return second.dueDate === undefined ? 0 : 1;
+  if (second.dueDate === undefined) return -1;
+  return first.dueDate.getTime() - second.dueDate.getTime();
 }
