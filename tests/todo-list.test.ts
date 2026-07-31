@@ -174,4 +174,48 @@ describe("listing todos", () => {
 
     expect(listing).toHaveLength(1);
   });
+
+  it("keeps every remaining todo when an add follows a remove", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    const third = list.add("third");
+
+    list.remove(first.id);
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("keeps every remaining todo through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.add("c");
+
+    list.remove(a.id);
+    const d = list.add("d");
+    list.remove(b.id);
+    const e = list.add("e");
+    list.remove(d.id);
+    const f = list.add("f");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
+    expect(new Set([e.id, f.id]).size).toBe(2);
+  });
+
+  it("keeps working after every todo is removed and the list is reused", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    list.remove(first.id);
+    list.remove(second.id);
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
 });
