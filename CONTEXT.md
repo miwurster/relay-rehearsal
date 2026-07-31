@@ -5,7 +5,7 @@ It names only the terms this repo coins or overloads — terms carrying their or
 
 ## The domain
 
-**Todo**: one thing somebody means to do, carrying an **id**, a **title** and its completion.
+**Todo**: one thing somebody means to do, carrying an **id**, a **title**, its completion and a **due date**.
 A todo is read-only to callers: the **todo list** replaces it rather than mutating it, so a todo handed out earlier never changes underneath the code holding it.
 _Avoid_: task, item, entry.
 
@@ -16,6 +16,14 @@ _Avoid_: name, description, label.
 **Completion**: whether a **todo** is done, as the single boolean `completed`.
 A todo is **open** until it is completed, and completing one is reversible — reopening it is ordinary, not a correction.
 _Avoid_: status, state, done flag.
+
+**Due date**: the point in time a **todo** is meant to be done by, accepted when the todo is added.
+A due date in the past is accepted. Renaming, completing and reopening a **todo** leave its due date as it was added.
+A due date that is not a usable point in time is refused with `InvalidDueDateError`, the way an empty **title** is refused with `InvalidTitleError`.
+_Avoid_: deadline, due, target date.
+
+**Undated**: the state of a **todo** added without a **due date** — a state of its own, not a date waiting to be supplied.
+_Avoid_: no due date, null date, missing date.
 
 **Todo list**: the whole collection, and the only thing that creates a **todo** or changes one.
 It hands out the **id**s itself, so nothing outside it invents one.

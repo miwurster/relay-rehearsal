@@ -1,4 +1,4 @@
-import { InvalidTitleError, UnknownTodoError } from "./errors.js";
+import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./errors.js";
 import type { Todo, TodoId } from "./todo.js";
 
 /** Which todos a listing asks for. */
@@ -14,10 +14,15 @@ export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
   private nextId = 1;
 
-  /** Add a todo with the given title, and answer the todo that was added. */
-  add(title: string): Todo {
+  /**
+   * Add a todo with the given title, and answer the todo that was added.
+   *
+   * A due date is optional; a todo added without one is undated.
+   */
+  add(title: string, dueDate?: Date): Todo {
     const accepted = requireTitle(title);
-    const todo: Todo = { id: this.mintId(), title: accepted, completed: false };
+    const acceptedDueDate = requireUsableDueDate(dueDate);
+    const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
     return todo;
   }
@@ -67,6 +72,14 @@ function requireTitle(title: string): string {
   const trimmed = title.trim();
   if (trimmed === "") throw new InvalidTitleError("A todo needs a title with something in it.");
   return trimmed;
+}
+
+function requireUsableDueDate(dueDate: Date | undefined): Date | undefined {
+  if (dueDate === undefined) return undefined;
+  if (Number.isNaN(dueDate.getTime())) {
+    throw new InvalidDueDateError("A due date needs to be a usable point in time.");
+  }
+  return new Date(dueDate.getTime());
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
