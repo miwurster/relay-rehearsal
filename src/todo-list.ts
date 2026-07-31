@@ -110,8 +110,19 @@ function unknownTodo(id: TodoId): UnknownTodoError {
 }
 
 function matches(todo: Todo, filter: TodoFilter, now: Date): boolean {
-  if (filter === "all") return true;
-  if (filter === "open") return !todo.completed;
-  if (filter === "completed") return todo.completed;
+  switch (filter) {
+    case "all":
+      return true;
+    case "open":
+      return !todo.completed;
+    case "completed":
+      return todo.completed;
+    case "overdue":
+      return isOverdue(todo, now);
+  }
+}
+
+/** A todo is overdue when it is open, dated, and its due date has passed as of `now`. */
+function isOverdue(todo: Todo, now: Date): boolean {
   return !todo.completed && todo.dueDate !== null && todo.dueDate.getTime() < now.getTime();
 }
