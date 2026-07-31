@@ -135,8 +135,7 @@ function isOverdue(todo: Todo, now: Date): boolean {
 
 /** Orders two todos soonest due date first, with every undated todo after every dated one. */
 function byDueDate(first: Todo, second: Todo): number {
-  if (first.dueDate === null || second.dueDate === null) {
-    return Number(first.dueDate === null) - Number(second.dueDate === null);
-  }
+  if (first.dueDate === null) return second.dueDate === null ? 0 : 1;
+  if (second.dueDate === null) return -1;
   return first.dueDate.getTime() - second.dueDate.getTime();
 }
