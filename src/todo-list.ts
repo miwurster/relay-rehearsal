@@ -24,26 +24,24 @@ export class TodoList {
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return exposed(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
-    const todo = this.todos.get(id);
-    if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return exposed(this.stored(id));
   }
 
   rename(id: TodoId, title: string): Todo {
-    return this.replace({ ...this.get(id), title: requireTitle(title) });
+    return exposed(this.replace({ ...this.stored(id), title: requireTitle(title) }));
   }
 
   complete(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: true });
+    return exposed(this.replace({ ...this.stored(id), completed: true }));
   }
 
   reopen(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: false });
+    return exposed(this.replace({ ...this.stored(id), completed: false }));
   }
 
   remove(id: TodoId): void {
@@ -52,7 +50,14 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(exposed);
+  }
+
+  /** The stored todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
+  private stored(id: TodoId): Todo {
+    const todo = this.todos.get(id);
+    if (todo === undefined) throw unknownTodo(id);
+    return todo;
   }
 
   private replace(todo: Todo): Todo {
@@ -79,6 +84,11 @@ function requireDueDate(dueDate: Date | undefined): Date | null {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
   return new Date(dueDate.getTime());
+}
+
+/** The given todo, with its due date cloned so a caller's later mutation of it cannot reach the list. */
+function exposed(todo: Todo): Todo {
+  return { ...todo, dueDate: todo.dueDate === null ? null : new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

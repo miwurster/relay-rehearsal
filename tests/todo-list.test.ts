@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
+import type { Todo } from "../src/todo.js";
+
+function mutateDueDate(todo: Todo): void {
+  const dueDate = todo.dueDate;
+  if (dueDate === null) throw new Error("expected the todo to carry a due date");
+  dueDate.setFullYear(1999);
+}
 
 describe("adding a todo", () => {
   it("adds it open, under a title trimmed of its whitespace", () => {
@@ -79,6 +86,38 @@ describe("adding a todo with a due date", () => {
     dueDate.setFullYear(1999);
 
     expect(todo.dueDate).toEqual(new Date("2026-08-01"));
+  });
+
+  it("does not change the list underneath a caller who mutates the date object handed out by add", () => {
+    const list = new TodoList();
+    const todo = list.add("buy milk", new Date("2026-08-01"));
+
+    mutateDueDate(todo);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-08-01"));
+  });
+
+  it("does not change underneath a caller who mutates the date object handed out by get", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk", new Date("2026-08-01"));
+
+    const fetched = list.get(added.id);
+    mutateDueDate(fetched);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-08-01"));
+    expect(added.dueDate).toEqual(new Date("2026-08-01"));
+  });
+
+  it("does not change underneath a caller who mutates the date object handed out by list", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk", new Date("2026-08-01"));
+
+    const [fromListing] = list.list();
+    if (fromListing === undefined) throw new Error("expected the listing to hold a todo");
+    mutateDueDate(fromListing);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-08-01"));
+    expect(added.dueDate).toEqual(new Date("2026-08-01"));
   });
 });
 
