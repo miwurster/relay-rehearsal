@@ -137,21 +137,33 @@ describe("adding a todo after removing one", () => {
 
   it("keeps the list correct through many interleaved removes and adds", () => {
     const list = new TodoList();
-    const a = list.add("a");
-    const b = list.add("b");
+    const todoA = list.add("a");
+    const todoB = list.add("b");
     list.add("c");
 
-    list.remove(a.id);
-    const d = list.add("d");
-    list.remove(b.id);
+    list.remove(todoA.id);
+    const todoD = list.add("d");
+    list.remove(todoB.id);
     list.add("e");
-    list.remove(d.id);
+    list.remove(todoD.id);
     list.add("f");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
 
     const ids = list.list().map((todo) => todo.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("never re-hands out an id after the list has been emptied", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    list.remove(first.id);
+    list.remove(second.id);
+    const third = list.add("third");
+
+    expect([first.id, second.id]).not.toContain(third.id);
   });
 });
 
