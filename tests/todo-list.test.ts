@@ -138,21 +138,25 @@ describe("adding a todo after removing one", () => {
 
   it("keeps every remaining todo through many interleaved removes and adds", () => {
     const list = new TodoList();
-    const a = list.add("a");
-    const b = list.add("b");
-    list.add("c");
+    const firstRemoved = list.add("first-removed");
+    const secondRemoved = list.add("second-removed");
+    list.add("kept");
 
-    list.remove(a.id);
-    const d = list.add("d");
-    list.remove(b.id);
-    const e = list.add("e");
-    list.remove(d.id);
-    const f = list.add("f");
+    list.remove(firstRemoved.id);
+    const addedAfterFirstRemove = list.add("added-after-first-remove");
+    list.remove(secondRemoved.id);
+    const addedAfterSecondRemove = list.add("added-after-second-remove");
+    list.remove(addedAfterFirstRemove.id);
+    const addedAfterThirdRemove = list.add("added-after-third-remove");
 
-    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
-    const mintedAfterRemovals = [d.id, e.id, f.id];
-    expect(mintedAfterRemovals).not.toContain(a.id);
-    expect(mintedAfterRemovals).not.toContain(b.id);
+    expect(list.list().map((todo) => todo.title)).toEqual([
+      "kept",
+      "added-after-second-remove",
+      "added-after-third-remove",
+    ]);
+    const mintedAfterRemovals = [addedAfterFirstRemove.id, addedAfterSecondRemove.id, addedAfterThirdRemove.id];
+    expect(mintedAfterRemovals).not.toContain(firstRemoved.id);
+    expect(mintedAfterRemovals).not.toContain(secondRemoved.id);
     expect(new Set(mintedAfterRemovals).size).toBe(3);
   });
 
