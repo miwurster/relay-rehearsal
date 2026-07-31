@@ -17,9 +17,9 @@ const systemClock: Clock = { now: () => new Date() };
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's default order: `list` returns todos in the
- * order they were added unless asked for in due-date order, and adding never
- * reorders what is already there.
+ * Insertion order is the order a listing comes back in when no order is
+ * asked for: `list` returns todos in the order they were added unless asked
+ * for in due-date order, and adding never reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -134,9 +134,9 @@ function isOverdue(todo: Todo, now: Date): boolean {
 }
 
 /** Orders two todos soonest due date first, with every undated todo after every dated one. */
-function byDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === null || b.dueDate === null) {
-    return Number(a.dueDate === null) - Number(b.dueDate === null);
+function byDueDate(first: Todo, second: Todo): number {
+  if (first.dueDate === null || second.dueDate === null) {
+    return Number(first.dueDate === null) - Number(second.dueDate === null);
   }
-  return a.dueDate.getTime() - b.dueDate.getTime();
+  return first.dueDate.getTime() - second.dueDate.getTime();
 }

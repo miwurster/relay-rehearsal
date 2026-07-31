@@ -42,7 +42,7 @@ _Avoid_: date order, sorted order.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
-**Listing**: one answer from the **todo list** to a **filter**, as a fresh array.
+**Listing**: one answer from the **todo list** to a **filter** and an order, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 
