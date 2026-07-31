@@ -61,18 +61,23 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map((todo) => this.present(todo));
+    return this.select((todo) => matches(todo, filter));
   }
 
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map((todo) => this.present(todo));
+    return this.select((todo) => isOverdue(todo, now));
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return this.present(todo);
+  }
+
+  /** The todos matching the predicate, in the order they were added, as a fresh array. */
+  private select(predicate: (todo: Todo) => boolean): Todo[] {
+    return [...this.todos.values()].filter(predicate).map((todo) => this.present(todo));
   }
 
   /** A copy of the todo, safe to hand to a caller without exposing the stored due date. */

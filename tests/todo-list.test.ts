@@ -316,10 +316,21 @@ describe("listing overdue todos", () => {
 
   it("measures a list constructed with no clock against the real one", () => {
     const list = new TodoList();
-    const overdue = list.add("renew passport", new Date("2000-01-01"));
-    list.add("plan trip", new Date("2999-01-01"));
+    const overdue = list.add("renew passport", new Date(Date.now() - 60_000));
+    list.add("plan trip", new Date(Date.now() + 60_000));
     list.add("someday", undefined);
 
     expect(list.overdue().map((todo) => todo.id)).toEqual([overdue.id]);
+  });
+
+  it("answers a listing that a later add does not reach", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-06-01"));
+
+    const listing = list.overdue();
+    list.add("buy bread", new Date("2026-06-02"));
+
+    expect(listing).toHaveLength(1);
   });
 });
