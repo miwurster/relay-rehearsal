@@ -260,6 +260,70 @@ describe("listing todos", () => {
 
     expect(listing).toHaveLength(1);
   });
+
+  it("keeps insertion order when no order is asked for, even with due dates set", () => {
+    const list = new TodoList();
+    const later = list.add("buy bread", new Date("2026-08-10"));
+    const soonest = list.add("buy milk", new Date("2026-08-01"));
+
+    expect(list.list().map((todo) => todo.id)).toEqual([later.id, soonest.id]);
+  });
+});
+
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest due date first, whatever order they were added in", () => {
+    const list = new TodoList();
+    const later = list.add("buy bread", new Date("2026-08-10"));
+    const soonest = list.add("buy milk", new Date("2026-08-01"));
+    const middle = list.add("buy eggs", new Date("2026-08-05"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.id)).toEqual([soonest.id, middle.id, later.id]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    const undated = list.add("someday");
+    const dated = list.add("buy milk", new Date("2026-08-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.id)).toEqual([dated.id, undated.id]);
+  });
+
+  it("keeps insertion order among todos sharing a due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-01");
+    const first = list.add("buy milk", dueDate);
+    const second = list.add("buy bread", dueDate);
+
+    expect(list.list("all", "due-date").map((todo) => todo.id)).toEqual([first.id, second.id]);
+  });
+
+  it("keeps insertion order among undated todos", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    expect(list.list("all", "due-date").map((todo) => todo.id)).toEqual([first.id, second.id]);
+  });
+
+  it("applies to the open filter", () => {
+    const list = new TodoList();
+    const later = list.add("buy bread", new Date("2026-08-10"));
+    const soonest = list.add("buy milk", new Date("2026-08-01"));
+    list.complete(later.id);
+    const another = list.add("buy eggs", new Date("2026-08-05"));
+
+    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([soonest.id, another.id]);
+  });
+
+  it("applies to the completed filter", () => {
+    const list = new TodoList();
+    const later = list.add("buy bread", new Date("2026-08-10"));
+    const soonest = list.add("buy milk", new Date("2026-08-01"));
+    list.complete(later.id);
+    list.complete(soonest.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.id)).toEqual([soonest.id, later.id]);
+  });
 });
 
 describe("listing overdue todos", () => {
