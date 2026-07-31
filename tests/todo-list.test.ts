@@ -38,6 +38,16 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(pastDueDate);
   });
 
+  it("does not let a caller's later mutation of the given due date reach the list", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-01");
+    const added = list.add("buy milk", dueDate);
+
+    dueDate.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-08-01"));
+  });
+
   it("refuses a due date that is not a usable point in time", () => {
     const list = new TodoList();
 
@@ -82,6 +92,17 @@ describe("reading a todo", () => {
     const list = new TodoList();
 
     expect(() => list.get("nope")).toThrow(UnknownTodoError);
+  });
+
+  it("does not let a caller's mutation of a handed-out due date change the list", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-01");
+    const added = list.add("buy milk", dueDate);
+
+    list.get(added.id).dueDate?.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(dueDate);
+    expect(added.dueDate).toEqual(dueDate);
   });
 });
 

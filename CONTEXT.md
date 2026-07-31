@@ -18,7 +18,8 @@ A todo is **open** until it is completed, and completing one is reversible — r
 _Avoid_: status, state, done flag.
 
 **Due date**: the point in time a **todo** is meant to be done by, accepted when the todo is added.
-A due date in the past is accepted. Renaming, completing and reopening a **todo** leave its due date as it was added.
+A due date in the past is accepted.
+Renaming, completing and reopening a **todo** leave its due date as it was added.
 A due date that is not a usable point in time is refused with `InvalidDueDateError`, the way an empty **title** is refused with `InvalidTitleError`.
 _Avoid_: deadline, due, target date.
 
