@@ -2,7 +2,14 @@ import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./erro
 import type { Todo, TodoId } from "./todo.js";
 
 /** Which todos a listing asks for. */
-export type TodoFilter = "all" | "open" | "completed";
+export type TodoFilter = "all" | "open" | "completed" | "overdue";
+
+/** A source of the current moment, so what counts as overdue can be pinned in tests instead of read from the system clock. */
+export interface Clock {
+  now(): Date;
+}
+
+const systemClock: Clock = { now: () => new Date() };
 
 /**
  * A list of todos, held in memory, with ids it hands out itself.
@@ -12,6 +19,12 @@ export type TodoFilter = "all" | "open" | "completed";
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
+  private readonly clock: Clock;
+
+  /** A list measured against the given clock, or the real one if none is given. */
+  constructor(clock: Clock = systemClock) {
+    this.clock = clock;
+  }
 
   /**
    * Add a todo with the given title, and answer the todo that was added.
@@ -50,7 +63,8 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(exposed);
+    const now = this.clock.now();
+    return [...this.todos.values()].filter((todo) => matches(todo, filter, now)).map(exposed);
   }
 
   /** The stored todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
@@ -95,8 +109,9 @@ function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
 }
 
-function matches(todo: Todo, filter: TodoFilter): boolean {
+function matches(todo: Todo, filter: TodoFilter, now: Date): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
-  return todo.completed;
+  if (filter === "completed") return todo.completed;
+  return !todo.completed && todo.dueDate !== null && todo.dueDate.getTime() < now.getTime();
 }
