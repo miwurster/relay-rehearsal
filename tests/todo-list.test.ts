@@ -122,6 +122,39 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("leaves every remaining todo in place", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    list.add("third");
+
+    list.remove(first.id);
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+  });
+
+  it("keeps the list correct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.add("c");
+
+    list.remove(a.id);
+    const d = list.add("d");
+    list.remove(b.id);
+    list.add("e");
+    list.remove(d.id);
+    list.add("f");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
+
+    const ids = list.list().map((todo) => todo.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
