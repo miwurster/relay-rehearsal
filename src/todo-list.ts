@@ -4,6 +4,9 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed" | "overdue";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "insertion" | "due-date";
+
 /** A source of the current moment, so what counts as overdue can be pinned in tests instead of read from the system clock. */
 export interface Clock {
   now(): Date;
@@ -14,8 +17,9 @@ const systemClock: Clock = { now: () => new Date() };
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added unless asked for in due-date order, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -61,10 +65,12 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
+  /** The todos the filter asks for, in the given order; insertion order if none is given. */
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const now = this.clock.now();
-    return [...this.todos.values()].filter((todo) => matches(todo, filter, now)).map(exposed);
+    const matched = [...this.todos.values()].filter((todo) => matches(todo, filter, now));
+    const ordered = order === "due-date" ? matched.sort(byDueDate) : matched;
+    return ordered.map(exposed);
   }
 
   /** The stored todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
@@ -125,4 +131,12 @@ function matches(todo: Todo, filter: TodoFilter, now: Date): boolean {
 /** A todo is overdue when it is open, dated, and its due date has passed as of `now`. */
 function isOverdue(todo: Todo, now: Date): boolean {
   return !todo.completed && todo.dueDate !== null && todo.dueDate.getTime() < now.getTime();
+}
+
+/** Orders two todos soonest due date first, with every undated todo after every dated one. */
+function byDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === null || b.dueDate === null) {
+    return Number(a.dueDate === null) - Number(b.dueDate === null);
+  }
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }

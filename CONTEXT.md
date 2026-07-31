@@ -29,9 +29,14 @@ _Avoid_: no date, empty date, null date.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
-**Insertion order**: the order todos were added, which is the order a **listing** comes back in today.
+**Insertion order**: the order todos were added, which is the order a **listing** comes back in when no order is asked for.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
+
+**Due-date order**: a **listing** ordered soonest **due date** first, with every **undated** todo after every dated one.
+Todos sharing a due date, and the undated ones among themselves, keep **insertion order** relative to each other.
+Available alongside any **filter**.
+_Avoid_: date order, sorted order.
 
 **Filter**: which **todo**s a **listing** asks for: `all`, `open`, `completed`, or `overdue`.
 A filter says what a listing holds, never what order it holds it in.

@@ -338,3 +338,55 @@ describe("listing overdue todos", () => {
     expect(list.list("overdue").map((todo) => todo.title)).toEqual(["overdue already"]);
   });
 });
+
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-08-02"));
+    list.add("sooner", new Date("2026-08-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["sooner", "later"]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated");
+    list.add("dated", new Date("2026-08-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["dated", "undated"]);
+  });
+
+  it("keeps todos sharing a due date in the order they were added", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-01");
+    list.add("first", dueDate);
+    list.add("second", dueDate);
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("keeps undated todos in the order they were added among themselves", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("can be asked for alongside a filter other than all", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-08-02"));
+    list.add("buy bread", new Date("2026-08-01"));
+    list.complete(milk.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("leaves a listing asked for with no order in the order todos were added", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-08-02"));
+    list.add("sooner", new Date("2026-08-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["later", "sooner"]);
+  });
+});
