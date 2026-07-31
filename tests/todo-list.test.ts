@@ -261,3 +261,65 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("holds a dated, open todo due before the supplied now", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    const milk = list.add("buy milk", new Date("2026-06-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([milk.id]);
+  });
+
+  it("excludes a dated, open todo due after the supplied now", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-07-01"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due exactly at the supplied now", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    const bread = list.add("buy bread", new Date("2026-06-02"));
+    list.add("buy undated milk");
+    const eggs = list.add("buy eggs", new Date("2026-06-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([bread.id, eggs.id]);
+  });
+
+  it("measures a list constructed with no clock against the real one", () => {
+    const list = new TodoList();
+    const overdue = list.add("renew passport", new Date("2000-01-01"));
+    list.add("plan trip", new Date("2999-01-01"));
+    list.add("someday", undefined);
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([overdue.id]);
+  });
+});
