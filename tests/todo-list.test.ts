@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
-import type { Todo } from "../src/todo.js";
+import type { Todo } from "../src/index.js";
 
 function mutateDueDate(todo: Todo): void {
   const dueDate = todo.dueDate;
