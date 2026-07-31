@@ -11,4 +11,6 @@ export interface Todo {
   readonly id: TodoId;
   readonly title: string;
   readonly completed: boolean;
+  /** The point in time this todo is meant to be done by, or `null` if it is undated. */
+  readonly dueDate: Date | null;
 }
