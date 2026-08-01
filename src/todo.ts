@@ -6,10 +6,12 @@ export type TodoId = string;
  *
  * A todo is read-only to callers: the list replaces it rather than mutating it,
  * so a todo handed out earlier never changes underneath the code holding it.
+ * Its due date is a point in time in epoch milliseconds, not a `Date`, so it
+ * cannot be mutated out from under the todo that carries it.
  */
 export interface Todo {
   readonly id: TodoId;
   readonly title: string;
   readonly completed: boolean;
-  readonly dueDate: Date | undefined;
+  readonly dueDate: number | undefined;
 }

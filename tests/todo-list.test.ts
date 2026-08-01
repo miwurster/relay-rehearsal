@@ -9,7 +9,7 @@ describe("adding a todo", () => {
 
     const todo = list.add("buy milk", dueDate);
 
-    expect(todo.dueDate).toEqual(dueDate);
+    expect(todo.dueDate).toEqual(dueDate.getTime());
   });
 
   it("adds it undated when given no due date", () => {
@@ -27,8 +27,8 @@ describe("adding a todo", () => {
     const todo = list.add("buy milk", dueDate);
     dueDate.setFullYear(1999);
 
-    expect(todo.dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z"));
-    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z"));
+    expect(todo.dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z").getTime());
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z").getTime());
   });
 
   it("accepts a due date that is already in the past", () => {
@@ -37,7 +37,7 @@ describe("adding a todo", () => {
 
     const todo = list.add("buy milk", pastDueDate);
 
-    expect(todo.dueDate).toEqual(pastDueDate);
+    expect(todo.dueDate).toEqual(pastDueDate.getTime());
   });
 
   it("adds it open, under a title trimmed of its whitespace", () => {
@@ -123,7 +123,7 @@ describe("renaming a todo", () => {
 
     const renamed = list.rename(added.id, "buy oat milk");
 
-    expect(renamed.dueDate).toEqual(dueDate);
+    expect(renamed.dueDate).toEqual(dueDate.getTime());
   });
 
   it("refuses a title that is empty once trimmed", () => {
@@ -148,7 +148,7 @@ describe("completing and reopening a todo", () => {
     const dueDate = new Date("2026-08-15T00:00:00.000Z");
     const added = list.add("buy milk", dueDate);
 
-    expect(list.complete(added.id).dueDate).toEqual(dueDate);
+    expect(list.complete(added.id).dueDate).toEqual(dueDate.getTime());
   });
 
   it("reopens a completed todo", () => {
@@ -165,7 +165,7 @@ describe("completing and reopening a todo", () => {
     const added = list.add("buy milk", dueDate);
     list.complete(added.id);
 
-    expect(list.reopen(added.id).dueDate).toEqual(dueDate);
+    expect(list.reopen(added.id).dueDate).toEqual(dueDate.getTime());
   });
 
   it("leaves the todo handed out earlier unchanged", () => {
@@ -184,7 +184,7 @@ describe("completing and reopening a todo", () => {
 
     list.complete(added.id);
 
-    expect(added.dueDate).toEqual(dueDate);
+    expect(added.dueDate).toEqual(dueDate.getTime());
   });
 
   it("refuses an id the list does not hold", () => {
@@ -227,7 +227,7 @@ describe("listing todos", () => {
     list.add("buy bread");
     list.complete(milk.id);
 
-    expect(list.list("open").map((todo) => todo.title)).toEqual(["buy bread"]);
+    expect(list.list({ filter: "open" }).map((todo) => todo.title)).toEqual(["buy bread"]);
   });
 
   it("answers only the completed ones when asked for completed", () => {
@@ -236,7 +236,7 @@ describe("listing todos", () => {
     list.add("buy bread");
     list.complete(milk.id);
 
-    expect(list.list("completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.list({ filter: "completed" }).map((todo) => todo.title)).toEqual(["buy milk"]);
   });
 
   it("answers an empty list when nothing has been added", () => {
@@ -273,7 +273,7 @@ describe("listing todos in due-date order", () => {
     list.add("due first", new Date("2026-08-01T00:00:00.000Z"));
     list.add("due second", new Date("2026-08-10T00:00:00.000Z"));
 
-    const titles = list.list("all", "due-date").map((todo) => todo.title);
+    const titles = list.list({ order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual(["due first", "due second", "due last"]);
   });
@@ -284,7 +284,7 @@ describe("listing todos in due-date order", () => {
     list.add("dated", new Date("2026-08-10T00:00:00.000Z"));
     list.add("undated second");
 
-    const titles = list.list("all", "due-date").map((todo) => todo.title);
+    const titles = list.list({ order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual(["dated", "undated first", "undated second"]);
   });
@@ -298,7 +298,7 @@ describe("listing todos in due-date order", () => {
     list.add("undated first");
     list.add("undated second");
 
-    const titles = list.list("all", "due-date").map((todo) => todo.title);
+    const titles = list.list({ order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual([
       "shared due date, added first",
@@ -319,7 +319,7 @@ describe("listing todos in due-date order", () => {
     list.add("undated first");
     list.add("undated second");
 
-    const titles = list.list("all", "due-date").map((todo) => todo.title);
+    const titles = list.list({ order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual([
       "dated, due earlier",
@@ -338,7 +338,7 @@ describe("listing todos in due-date order", () => {
     list.add("due second, open", new Date("2026-08-10T00:00:00.000Z"));
     list.complete(completed.id);
 
-    const titles = list.list("open", "due-date").map((todo) => todo.title);
+    const titles = list.list({ filter: "open", order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual(["due second, open", "due last, open"]);
   });
@@ -351,7 +351,7 @@ describe("listing todos in due-date order", () => {
     list.complete(completedFirst.id);
     list.complete(completedSecond.id);
 
-    const titles = list.list("completed", "due-date").map((todo) => todo.title);
+    const titles = list.list({ filter: "completed", order: "due-date" }).map((todo) => todo.title);
 
     expect(titles).toEqual(["due first, completed", "due second, completed"]);
   });

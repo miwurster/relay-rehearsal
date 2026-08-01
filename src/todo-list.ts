@@ -9,6 +9,12 @@ export type TodoFilter = "all" | "open" | "completed";
 /** What order a listing comes back in. */
 export type TodoOrder = "insertion" | "due-date";
 
+/** Which filter and order a listing is asked for; both default when omitted. */
+export interface TodoListOptions {
+  readonly filter?: TodoFilter;
+  readonly order?: TodoOrder;
+}
+
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
@@ -32,14 +38,14 @@ export class TodoList {
     const acceptedDueDate = requireUsableDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return present(todo);
+    return todo;
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return present(todo);
+    return todo;
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -64,7 +70,7 @@ export class TodoList {
    * Insertion order is the default; due-date order puts the soonest due date
    * first and every undated todo after every dated one.
    */
-  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+  list({ filter = "all", order = "insertion" }: TodoListOptions = {}): Todo[] {
     const matching = this.listing((todo) => matches(todo, filter));
     return order === "due-date" ? inDueDateOrder(matching) : matching;
   }
@@ -77,12 +83,12 @@ export class TodoList {
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return present(todo);
+    return todo;
   }
 
   /** The todos the predicate keeps, in the order they were added. */
   private listing(keep: (todo: Todo) => boolean): Todo[] {
-    return [...this.todos.values()].filter(keep).map(present);
+    return [...this.todos.values()].filter(keep);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -97,17 +103,12 @@ function requireTitle(title: string): string {
   return trimmed;
 }
 
-function requireUsableDueDate(dueDate: Date | undefined): Date | undefined {
+function requireUsableDueDate(dueDate: Date | undefined): number | undefined {
   if (dueDate === undefined) return undefined;
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date must be a usable point in time.");
   }
-  return new Date(dueDate.getTime());
-}
-
-/** A todo as handed to a caller: its due date copied, so mutating it cannot reach the stored todo. */
-function present(todo: Todo): Todo {
-  return { ...todo, dueDate: todo.dueDate === undefined ? undefined : new Date(todo.dueDate.getTime()) };
+  return dueDate.getTime();
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
@@ -129,11 +130,11 @@ function byDueDateOrder(first: Todo, second: Todo): number {
   if (first.dueDate === undefined && second.dueDate === undefined) return 0;
   if (first.dueDate === undefined) return 1;
   if (second.dueDate === undefined) return -1;
-  return first.dueDate.getTime() - second.dueDate.getTime();
+  return first.dueDate - second.dueDate;
 }
 
 function isOverdue(todo: Todo, now: Date): boolean {
   if (todo.dueDate === undefined) return false;
   if (todo.completed) return false;
-  return todo.dueDate.getTime() < now.getTime();
+  return todo.dueDate < now.getTime();
 }
