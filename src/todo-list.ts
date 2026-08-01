@@ -56,7 +56,10 @@ export class TodoList {
    * nothing rather than everything.
    */
   search(text: string, filter: TodoFilter = "all"): Todo[] {
-    return this.list(filter).filter((todo) => titleContains(todo, text));
+    const needle = trimmed(text);
+    if (needle === null) return [];
+    const lowerNeedle = needle.toLowerCase();
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(lowerNeedle));
   }
 
   private replace(todo: Todo): Todo {
@@ -71,9 +74,15 @@ export class TodoList {
 }
 
 function requireTitle(title: string): string {
-  const trimmed = title.trim();
-  if (trimmed === "") throw new InvalidTitleError("A todo needs a title with something in it.");
-  return trimmed;
+  const accepted = trimmed(title);
+  if (accepted === null) throw new InvalidTitleError("A todo needs a title with something in it.");
+  return accepted;
+}
+
+/** `text` trimmed of its whitespace, or `null` if nothing is left once trimmed. */
+function trimmed(text: string): string | null {
+  const result = text.trim();
+  return result === "" ? null : result;
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
@@ -84,10 +93,4 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
-}
-
-function titleContains(todo: Todo, text: string): boolean {
-  const trimmed = text.trim();
-  if (trimmed === "") return false;
-  return todo.title.toLowerCase().includes(trimmed.toLowerCase());
 }

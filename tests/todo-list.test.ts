@@ -238,6 +238,18 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
+  });
+
+  it("is read-only: the list answers the same todos after a search as before it", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 
   it("answers a listing that a later add does not reach", () => {
