@@ -122,6 +122,47 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("does not overwrite a todo still in the list", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    const fourth = list.add("fourth");
+
+    expect(list.list()).toEqual([second, third, fourth]);
+  });
+
+  it("mints an id no todo in the list has ever carried, even through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const seenIds = new Set<string>();
+
+    const first = list.add("first");
+    seenIds.add(first.id);
+    const second = list.add("second");
+    seenIds.add(second.id);
+    list.remove(first.id);
+
+    const third = list.add("third");
+    expect(seenIds.has(third.id)).toBe(false);
+    seenIds.add(third.id);
+
+    list.remove(second.id);
+    list.remove(third.id);
+
+    const fourth = list.add("fourth");
+    expect(seenIds.has(fourth.id)).toBe(false);
+    seenIds.add(fourth.id);
+    const fifth = list.add("fifth");
+    expect(seenIds.has(fifth.id)).toBe(false);
+    seenIds.add(fifth.id);
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["fourth", "fifth"]);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
