@@ -72,6 +72,15 @@ describe("adding a todo", () => {
     expect(list.list()).toHaveLength(0);
   });
 
+  it("leaves the todos it already held untouched when a due date is refused", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(() => list.add("buy bread", new Date("not a date"))).toThrow(InvalidDueDateError);
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
   it("spends no id on a refused title", () => {
     const refused = new TodoList();
     expect(() => refused.add("   ")).toThrow(InvalidTitleError);
