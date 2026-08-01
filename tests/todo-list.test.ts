@@ -146,18 +146,18 @@ describe("removing a todo", () => {
 
   it("keeps the list correct through many interleaved removes and adds", () => {
     const list = new TodoList();
-    const a = list.add("a");
-    const b = list.add("b");
-    list.remove(a.id);
-    const c = list.add("c");
-    list.remove(b.id);
-    const d = list.add("d");
-    const e = list.add("e");
-    list.remove(d.id);
+    const firstTodo = list.add("a");
+    const secondTodo = list.add("b");
+    list.remove(firstTodo.id);
+    const thirdTodo = list.add("c");
+    list.remove(secondTodo.id);
+    const fourthTodo = list.add("d");
+    const fifthTodo = list.add("e");
+    list.remove(fourthTodo.id);
 
     expect(list.list().map((todo) => todo.title)).toEqual(["c", "e"]);
-    expect(list.get(c.id).title).toBe("c");
-    expect(list.get(e.id).title).toBe("e");
+    expect(list.get(thirdTodo.id).title).toBe("c");
+    expect(list.get(fifthTodo.id).title).toBe("e");
   });
 
   it("works after removing every todo and adding again", () => {
