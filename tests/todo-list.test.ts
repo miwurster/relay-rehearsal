@@ -383,11 +383,11 @@ describe("listing overdue todos", () => {
   it("does not follow a mutation to a returned overdue todo's due date", () => {
     const now = new Date("2026-08-01");
     const list = new TodoList(() => now);
-    const added = list.add("buy milk", new Date("2026-07-01"));
-    const original = new Date(added.dueDate!.getTime());
+    const dueDate = new Date("2026-07-01");
+    const original = new Date(dueDate.getTime());
+    const added = list.add("buy milk", dueDate);
 
-    const [overdue] = list.overdue();
-    overdue!.dueDate?.setFullYear(1999);
+    list.overdue()[0]?.dueDate?.setFullYear(1999);
 
     expect(list.get(added.id).dueDate).toEqual(original);
   });
