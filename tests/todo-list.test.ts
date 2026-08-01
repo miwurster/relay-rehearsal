@@ -120,6 +120,59 @@ describe("removing a todo", () => {
 
     expect(() => list.remove("nope")).toThrow(UnknownTodoError);
   });
+
+  it("adding after a remove leaves every remaining todo in place", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    const fourth = list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(third.id).title).toBe("third");
+    expect(list.get(fourth.id).title).toBe("fourth");
+  });
+
+  it("never hands a removed todo's id to another todo", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.remove(first.id);
+
+    const second = list.add("second");
+
+    expect(second.id).not.toBe(first.id);
+  });
+
+  it("keeps every todo correct across many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    list.remove(b.id);
+    const d = list.add("d");
+    const e = list.add("e");
+    list.remove(c.id);
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["d", "e"]);
+    expect(list.get(d.id).title).toBe("d");
+    expect(list.get(e.id).title).toBe("e");
+  });
+
+  it("mints ids that have never been used, even after emptying the list", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
 });
 
 describe("listing todos", () => {
