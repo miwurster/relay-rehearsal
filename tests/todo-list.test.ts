@@ -226,6 +226,15 @@ describe("searching todos", () => {
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
   });
 
+  it("searches within all when the filter is given explicitly", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
+  });
+
   it("answers matches in the order they were added", () => {
     const list = new TodoList();
     list.add("buy milk");
@@ -243,5 +252,16 @@ describe("searching todos", () => {
     list.add("buy more milk");
 
     expect(listing).toHaveLength(1);
+  });
+
+  it("changes nothing about the list", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 });
