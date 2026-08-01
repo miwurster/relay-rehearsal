@@ -1,6 +1,6 @@
 # todo-app
 
-A tiny in-memory todo core: add a todo, read one, rename it, complete it, reopen it, remove it, list them all or by filter.
+A tiny in-memory todo core: add a todo, read one, rename it, complete it, reopen it, remove it, list them all or by filter, list the overdue ones.
 No UI, no HTTP layer, no persistence — just the domain and its tests.
 
 This is the fixture repo a **rehearsal** seeds.

@@ -263,7 +263,7 @@ describe("listing overdue todos", () => {
     const list = new TodoList(() => now);
     const todo = list.add("buy milk", new Date("2026-08-14T00:00:00.000Z"));
 
-    expect(list.overdue().map((overdue) => overdue.id)).toEqual([todo.id]);
+    expect(list.overdue().map((todo) => todo.id)).toEqual([todo.id]);
   });
 
   it("excludes a dated, open todo due after the supplied now", () => {
@@ -310,12 +310,11 @@ describe("listing overdue todos", () => {
 
   it("measures a list constructed with no clock against the real one", () => {
     const list = new TodoList();
-    const pastDue = list.add("buy milk", new Date(Date.now() - 1000));
-    const futureDue = list.add("buy bread", new Date(Date.now() + 1000 * 60 * 60 * 24));
+    const milk = list.add("buy milk", new Date(Date.now() - 1000));
+    const bread = list.add("buy bread", new Date(Date.now() + 1000 * 60 * 60 * 24));
 
     const overdueIds = list.overdue().map((todo) => todo.id);
 
-    expect(overdueIds).toEqual([pastDue.id]);
-    expect(overdueIds).not.toContain(futureDue.id);
+    expect(overdueIds).toEqual([milk.id]);
   });
 });
