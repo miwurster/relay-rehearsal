@@ -175,3 +175,71 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("searching todos", () => {
+  it("answers todos whose title contains the text, case-insensitively", () => {
+    const list = new TodoList();
+    const milk = list.add("Buy Milk");
+    list.add("Buy Bread");
+
+    expect(list.search("milk")).toEqual([milk]);
+  });
+
+  it("matches text anywhere in the title", () => {
+    const list = new TodoList();
+    const bread = list.add("Buy wholemeal bread");
+    list.add("Buy milk");
+
+    expect(list.search("wholemeal")).toEqual([bread]);
+  });
+
+  it("trims the text searched for", () => {
+    const list = new TodoList();
+    const milk = list.add("Buy milk");
+
+    expect(list.search("  milk  ")).toEqual([milk]);
+  });
+
+  it("matches nothing when the text is empty once trimmed", () => {
+    const list = new TodoList();
+    list.add("Buy milk");
+
+    expect(list.search("   ")).toEqual([]);
+  });
+
+  it("answers an empty listing when nothing matches", () => {
+    const list = new TodoList();
+    list.add("Buy milk");
+
+    expect(list.search("bread")).toEqual([]);
+  });
+
+  it("answers matches in the order they were added", () => {
+    const list = new TodoList();
+    list.add("Buy milk");
+    list.add("Buy bread");
+    list.add("Buy milk again");
+
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["Buy milk", "Buy milk again"]);
+  });
+
+  it("composes with a filter, searching only within it", () => {
+    const list = new TodoList();
+    const milk = list.add("Buy milk");
+    list.add("Buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["Buy oat milk"]);
+    expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["Buy milk"]);
+  });
+
+  it("answers a listing that a later add does not reach", () => {
+    const list = new TodoList();
+    list.add("Buy milk");
+
+    const listing = list.search("milk");
+    list.add("Buy more milk");
+
+    expect(listing).toHaveLength(1);
+  });
+});
