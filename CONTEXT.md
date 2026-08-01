@@ -38,6 +38,12 @@ _Avoid_: natural order, default order.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
+**Due-date order**: an order a **listing** can be asked for, available with every **filter**.
+The soonest **due date** comes first, and every **undated** todo comes after every dated one.
+Todos sharing a due date, and the undated todos among themselves, keep **insertion order** relative to each other.
+Asked for with no order, a listing comes back in insertion order, unchanged.
+_Avoid_: date order, sorted order.
+
 **Listing**: one answer from the **todo list** to a **filter**, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.

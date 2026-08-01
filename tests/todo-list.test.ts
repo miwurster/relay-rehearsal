@@ -274,6 +274,59 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-09-01"));
+    list.add("sooner", new Date("2026-08-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["sooner", "later"]);
+  });
+
+  it("puts every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated");
+    list.add("dated", new Date("2026-08-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["dated", "undated"]);
+  });
+
+  it("keeps todos sharing a due date in the order they were added", () => {
+    const list = new TodoList();
+    const sameDueDate = new Date("2026-08-01");
+    list.add("first", sameDueDate);
+    list.add("second", sameDueDate);
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("keeps undated todos in the order they were added, among themselves", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("is available with every filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-09-01"));
+    list.add("buy bread", new Date("2026-08-01"));
+    list.complete(milk.id);
+
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["buy bread"]);
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("answers in the order todos were added when no order is asked for", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-09-01"));
+    list.add("sooner", new Date("2026-08-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["later", "sooner"]);
+  });
+});
+
 describe("listing overdue todos", () => {
   const now = new Date("2026-08-01T12:00:00Z");
 
