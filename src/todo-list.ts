@@ -10,8 +10,9 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's order: `list` and `overdue` return todos in
+ * the order they were added, and adding never reorders what is already there.
+ * `overdue` measures each call against the clock's current now.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -61,18 +62,22 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+    return this.selectTodos((todo) => matches(todo, filter));
   }
 
   /** The todos that are overdue, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
+    return this.selectTodos((todo) => isOverdue(todo, now));
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return cloneTodo(todo);
+  }
+
+  private selectTodos(predicate: (todo: Todo) => boolean): Todo[] {
+    return [...this.todos.values()].filter(predicate).map(cloneTodo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */

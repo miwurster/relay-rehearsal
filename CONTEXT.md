@@ -44,7 +44,7 @@ _Avoid_: view, snapshot, result set.
 
 **Overdue**: a **todo** that is dated, still **open**, and due before the **clock**'s now.
 A todo due exactly at now is not yet overdue, a completed todo is never overdue, and an **undated** todo is never overdue.
-The overdue **listing** comes back in **insertion order**, like every other listing.
+Overdue todos come back in **insertion order**, the same order every listing comes back in.
 _Avoid_: late, expired.
 
 **Clock**: what the **todo list** reads "now" from, given optionally when the list is constructed.

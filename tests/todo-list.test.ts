@@ -315,11 +315,23 @@ describe("listing overdue todos", () => {
 
   it("answers overdue todos in the order they were added", () => {
     const list = new TodoList(() => now);
-    list.add("first", new Date("2026-07-01"));
+    list.add("first", new Date("2026-07-15"));
     list.add("undated");
-    list.add("second", new Date("2026-07-15"));
+    list.add("second", new Date("2026-07-01"));
 
     expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("measures each call against the clock's current now", () => {
+    let currentNow = new Date("2026-07-10");
+    const list = new TodoList(() => currentNow);
+    list.add("buy milk", new Date("2026-07-20"));
+
+    expect(list.overdue()).toEqual([]);
+
+    currentNow = new Date("2026-07-25");
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["buy milk"]);
   });
 
   it("measures a list built with no clock against the real one", () => {
