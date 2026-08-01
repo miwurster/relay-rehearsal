@@ -34,5 +34,6 @@ Holding a listing does not hold the list: a later add does not appear in a listi
 _Avoid_: view, snapshot, result set.
 
 **Search**: asking the **todo list** for the **listing** of todos whose **title** contains some text.
-The text is trimmed and case-folded the way a title is, and text that is empty once trimmed matches nothing rather than everything. A search composes with a **filter**, so an app can search the open todos, the completed ones, or all of them.
+The text searched for is trimmed the way a **title** is, and both it and the title are case-folded before they are matched, so text that is empty once trimmed matches nothing rather than everything.
+A search composes with a **filter**, so an app can search the open todos, the completed ones, or all of them.
 _Avoid_: query, lookup, find.

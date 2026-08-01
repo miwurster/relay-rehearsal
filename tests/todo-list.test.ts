@@ -231,6 +231,18 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["Buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["Buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["Buy milk", "Buy oat milk"]);
+  });
+
+  it("leaves the list unchanged", () => {
+    const list = new TodoList();
+    list.add("Buy milk");
+    list.add("Buy bread");
+    const before = list.list();
+
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 
   it("answers a listing that a later add does not reach", () => {
