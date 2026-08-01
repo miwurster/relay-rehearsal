@@ -152,8 +152,7 @@ describe("adding a todo after removing one", () => {
       }
     }
 
-    const remainingIds = new Set(list.list().map((todo) => todo.id));
-    expect(remainingIds.size).toBe(list.list().length);
+    expect(list.list().map((todo) => todo.title)).toEqual(["round 1", "round 3"]);
   });
 
   it("keeps working after removing every todo and adding again", () => {
