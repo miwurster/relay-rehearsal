@@ -4,7 +4,7 @@ import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./erro
 import type { Todo, TodoId } from "./todo.js";
 
 /** Which todos a listing asks for. */
-export type TodoFilter = "all" | "open" | "completed";
+export type TodoFilter = "all" | "open" | "completed" | "overdue";
 
 /** What order a listing comes back in. */
 export type TodoOrder = "insertion" | "dueDate";
@@ -56,14 +56,9 @@ export class TodoList {
 
   /** The todos the filter asks for, in insertion order or due-date order, insertion order by default. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
-    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return orderTodos(matching, order).map(cloneTodo);
-  }
-
-  /** The open, dated todos due before the list's clock's now, in the order they were added. */
-  overdue(): Todo[] {
     const now = this.clock.now();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
+    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter, now));
+    return orderTodos(matching, order).map(cloneTodo);
   }
 
   private replace(todo: Todo): Todo {
@@ -104,10 +99,11 @@ function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
 }
 
-function matches(todo: Todo, filter: TodoFilter): boolean {
+function matches(todo: Todo, filter: TodoFilter, now: Date): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
-  return todo.completed;
+  if (filter === "completed") return todo.completed;
+  return !todo.completed && todo.dueDate !== null && todo.dueDate.getTime() < now.getTime();
 }
 
 /** `todos` reordered per `order`, stably: ties keep the relative order they arrived in. */
@@ -120,8 +116,4 @@ function compareByDueDate(first: Todo, second: Todo): number {
   if (first.dueDate === null) return second.dueDate === null ? 0 : 1;
   if (second.dueDate === null) return -1;
   return first.dueDate.getTime() - second.dueDate.getTime();
-}
-
-function isOverdue(todo: Todo, now: Date): boolean {
-  return !todo.completed && todo.dueDate !== null && todo.dueDate.getTime() < now.getTime();
 }
