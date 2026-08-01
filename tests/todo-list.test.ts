@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
+import type { Todo, TodoId } from "../src/index.js";
+
+function addExpectingFreshId(list: TodoList, seenIds: Set<TodoId>, title: string): Todo {
+  const todo = list.add(title);
+  expect(seenIds.has(todo.id)).toBe(false);
+  seenIds.add(todo.id);
+  return todo;
+}
 
 describe("adding a todo", () => {
   it("adds it open, under a title trimmed of its whitespace", () => {
@@ -135,9 +143,9 @@ describe("adding a todo after removing one", () => {
     expect(list.list()).toEqual([second, third, fourth]);
   });
 
-  it("mints an id no todo in the list has ever carried, even through many interleaved removes and adds", () => {
+  it("mints an id no todo in the list has ever carried, through interleaved removes and adds", () => {
     const list = new TodoList();
-    const seenIds = new Set<string>();
+    const seenIds = new Set<TodoId>();
 
     const first = list.add("first");
     seenIds.add(first.id);
@@ -145,19 +153,40 @@ describe("adding a todo after removing one", () => {
     seenIds.add(second.id);
     list.remove(first.id);
 
-    const third = list.add("third");
-    expect(seenIds.has(third.id)).toBe(false);
-    seenIds.add(third.id);
+    addExpectingFreshId(list, seenIds, "third");
 
+    list.remove(second.id);
+
+    addExpectingFreshId(list, seenIds, "fourth");
+    addExpectingFreshId(list, seenIds, "fifth");
+  });
+
+  it("mints a never-seen id after removing every todo in the list and adding again", () => {
+    const list = new TodoList();
+    const seenIds = new Set<TodoId>();
+
+    const first = list.add("first");
+    seenIds.add(first.id);
+    const second = list.add("second");
+    seenIds.add(second.id);
+    list.remove(first.id);
+    list.remove(second.id);
+
+    addExpectingFreshId(list, seenIds, "third");
+  });
+
+  it("keeps the listing correct through interleaved removes and adds", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+
+    const third = list.add("third");
     list.remove(second.id);
     list.remove(third.id);
 
-    const fourth = list.add("fourth");
-    expect(seenIds.has(fourth.id)).toBe(false);
-    seenIds.add(fourth.id);
-    const fifth = list.add("fifth");
-    expect(seenIds.has(fifth.id)).toBe(false);
-    seenIds.add(fifth.id);
+    list.add("fourth");
+    list.add("fifth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["fourth", "fifth"]);
   });
