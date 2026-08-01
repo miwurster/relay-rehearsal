@@ -13,9 +13,9 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` and `overdue` return todos in
- * the order they were added, and adding never reorders what is already there.
- * `overdue` measures each call against the clock's current now.
+ * A listing comes back in insertion order unless due-date order is asked
+ * for, and adding never reorders what is already there. `overdue` is always
+ * insertion order, and measures each call against the clock's current now.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -125,10 +125,10 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   return todo.completed;
 }
 
-function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
-  if (b.dueDate === undefined) return -1;
-  return a.dueDate.getTime() - b.dueDate.getTime();
+function compareByDueDate(todo: Todo, other: Todo): number {
+  if (todo.dueDate === undefined) return other.dueDate === undefined ? 0 : 1;
+  if (other.dueDate === undefined) return -1;
+  return todo.dueDate.getTime() - other.dueDate.getTime();
 }
 
 function isOverdue(todo: Todo, now: Date): boolean {
