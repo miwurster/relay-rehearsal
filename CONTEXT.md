@@ -32,3 +32,8 @@ _Avoid_: query, selector, predicate.
 **Listing**: one answer from the **todo list** to a **filter**, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Search**: which **todo**s a **listing** holds whose **title** contains some text, matched case-insensitively against the text trimmed the way a title is.
+Text that is empty once trimmed matches nothing.
+A search is independent of a **filter**: both narrow which todos a listing holds, and either can be asked alongside the other.
+_Avoid_: query.
