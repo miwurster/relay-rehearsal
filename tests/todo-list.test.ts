@@ -265,6 +265,61 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest due date first, whatever order they were added in", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-09-01"));
+    const soonest = list.add("soonest", new Date("2026-08-01"));
+    const middle = list.add("middle", new Date("2026-08-15"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([soonest.id, middle.id, later.id]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    const undated = list.add("undated");
+    const dated = list.add("dated", new Date("2026-08-01"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([dated.id, undated.id]);
+  });
+
+  it("keeps the order added for todos sharing a due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-01");
+    const first = list.add("first", dueDate);
+    const second = list.add("second", dueDate);
+
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([first.id, second.id]);
+  });
+
+  it("keeps the order added among the undated todos themselves", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([first.id, second.id]);
+  });
+
+  it("orders each filter's todos in due-date order when asked", () => {
+    const list = new TodoList();
+    const laterOpen = list.add("laterOpen", new Date("2026-09-01"));
+    const soonerCompleted = list.add("soonerCompleted", new Date("2026-08-01"));
+    list.complete(soonerCompleted.id);
+    const soonerOpen = list.add("soonerOpen", new Date("2026-08-15"));
+
+    expect(list.list("open", "dueDate").map((todo) => todo.id)).toEqual([soonerOpen.id, laterOpen.id]);
+    expect(list.list("completed", "dueDate").map((todo) => todo.id)).toEqual([soonerCompleted.id]);
+  });
+
+  it("answers todos in the order they were added when asked with no order", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-09-01"));
+    const sooner = list.add("sooner", new Date("2026-08-01"));
+
+    expect(list.list().map((todo) => todo.id)).toEqual([later.id, sooner.id]);
+  });
+});
+
 describe("listing overdue todos", () => {
   it("counts a dated, open todo due before the supplied now as overdue", () => {
     const now = new Date("2026-08-01");

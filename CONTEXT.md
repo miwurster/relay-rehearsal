@@ -42,6 +42,11 @@ _Avoid_: query, selector, predicate.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 
+**Due-date order**: an order a **listing** can be asked for, available with every **filter**, in which every dated **todo** comes back soonest due date first and every undated one comes after every dated one.
+Todos sharing a due date, and undated todos among themselves, keep **insertion order** relative to each other.
+A listing asked for with no order comes back in insertion order, as it always has.
+_Avoid_: sort order, date order.
+
 **Overdue**: a **todo** that is dated, still **open**, and due before the **clock**'s now, in **insertion order**.
 A todo due exactly at now is not yet overdue, a completed todo is never overdue, and an **undated** todo is never overdue.
 _Avoid_: late, past due.
