@@ -116,11 +116,14 @@ describe("renaming a todo", () => {
 
   it("leaves the due date of the todo handed out earlier unchanged", () => {
     const list = new TodoList();
-    const added = list.add("buy milk");
+    const dueDate = new Date("2026-08-15");
+    const added = list.add("buy milk", dueDate);
 
+    dueDate.setFullYear(1999);
     list.rename(added.id, "buy oat milk");
 
-    expect(added.dueDate).toBeNull();
+    expect(added.dueDate).toEqual(new Date("2026-08-15"));
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-08-15"));
   });
 });
 
