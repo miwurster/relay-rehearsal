@@ -20,6 +20,17 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toBeUndefined();
   });
 
+  it("does not gain or change a due date when the caller's Date is mutated afterwards", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-15T00:00:00.000Z");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(1999);
+
+    expect(todo.dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z"));
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-08-15T00:00:00.000Z"));
+  });
+
   it("accepts a due date that is already in the past", () => {
     const list = new TodoList();
     const pastDueDate = new Date("2000-01-01T00:00:00.000Z");

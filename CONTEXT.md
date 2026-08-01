@@ -5,7 +5,7 @@ It names only the terms this repo coins or overloads — terms carrying their or
 
 ## The domain
 
-**Todo**: one thing somebody means to do, carrying an **id**, a **title** and its completion.
+**Todo**: one thing somebody means to do, carrying an **id**, a **title**, its completion and its **due date**.
 A todo is read-only to callers: the **todo list** replaces it rather than mutating it, so a todo handed out earlier never changes underneath the code holding it.
 _Avoid_: task, item, entry.
 
