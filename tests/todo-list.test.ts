@@ -185,6 +185,14 @@ describe("searching todos", () => {
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk"]);
   });
 
+  it("matches text sitting in the middle of the title", () => {
+    const list = new TodoList();
+    list.add("buy milk today");
+    list.add("buy bread");
+
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk today"]);
+  });
+
   it("ignores case on both sides", () => {
     const list = new TodoList();
     list.add("Buy Milk");
@@ -243,5 +251,16 @@ describe("searching todos", () => {
     list.add("buy more milk");
 
     expect(listing).toHaveLength(1);
+  });
+
+  it("is read-only, leaving list() answering the same todos before and after", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 });

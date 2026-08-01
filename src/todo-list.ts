@@ -50,8 +50,8 @@ export class TodoList {
   }
 
   /** The todos the filter asks for whose title contains the text, in the order they were added. */
-  search(query: string, filter: TodoFilter = "all"): Todo[] {
-    const trimmed = query.trim();
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const trimmed = text.trim();
     if (trimmed === "") return [];
     const folded = trimmed.toLowerCase();
     return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(folded));
