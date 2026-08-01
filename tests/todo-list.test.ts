@@ -310,11 +310,11 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2026-08-01");
     const list = new TodoList(() => now);
-    const second = list.add("second", new Date("2026-07-02"));
+    const dueLater = list.add("dueLater", new Date("2026-07-02"));
     list.add("undated");
-    const first = list.add("first", new Date("2026-07-01"));
+    const dueEarlier = list.add("dueEarlier", new Date("2026-07-01"));
 
-    expect(list.overdue().map((t) => t.id)).toEqual([second.id, first.id]);
+    expect(list.overdue().map((t) => t.id)).toEqual([dueLater.id, dueEarlier.id]);
   });
 
   it("measures against the real clock when constructed with none", () => {
@@ -323,5 +323,28 @@ describe("listing overdue todos", () => {
     list.add("far in the future", new Date("3000-01-01"));
 
     expect(list.overdue().map((t) => t.id)).toEqual([overdue.id]);
+  });
+
+  it("does not follow a mutation to a returned overdue todo's due date", () => {
+    const now = new Date("2026-08-01");
+    const list = new TodoList(() => now);
+    const added = list.add("buy milk", new Date("2026-07-01"));
+    const original = new Date(added.dueDate!.getTime());
+
+    const [overdue] = list.overdue();
+    overdue!.dueDate?.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(original);
+  });
+
+  it("answers a listing that a later add does not reach", () => {
+    const now = new Date("2026-08-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-07-01"));
+
+    const listing = list.overdue();
+    list.add("buy bread", new Date("2026-07-01"));
+
+    expect(listing).toHaveLength(1);
   });
 });
