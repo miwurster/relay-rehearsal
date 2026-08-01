@@ -122,6 +122,55 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("does not overwrite a todo that is still in the list", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.id)).toEqual(
+      expect.arrayContaining([second.id, third.id]),
+    );
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+  });
+
+  it("never hands out an id already used in that list, through many interleaved adds and removes", () => {
+    const list = new TodoList();
+    const seenIds = new Set<string>();
+
+    for (let round = 0; round < 5; round++) {
+      const todo = list.add(`round ${round}`);
+      expect(seenIds.has(todo.id)).toBe(false);
+      seenIds.add(todo.id);
+
+      if (round % 2 === 0) {
+        list.remove(todo.id);
+      }
+    }
+
+    const remainingIds = new Set(list.list().map((todo) => todo.id));
+    expect(remainingIds.size).toBe(list.list().length);
+  });
+
+  it("keeps working after removing every todo and adding again", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(list.list()).toEqual([third]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
