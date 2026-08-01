@@ -240,3 +240,56 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("holds a dated, open todo due before the clock's now, and not one due after it", () => {
+    const now = new Date("2026-08-01T12:00:00Z");
+    const list = new TodoList({ now: () => now });
+    const late = list.add("renew passport", new Date("2026-07-01T00:00:00Z"));
+    list.add("plan trip", new Date("2026-09-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([late.id]);
+  });
+
+  it("does not hold a todo due exactly at the clock's now", () => {
+    const now = new Date("2026-08-01T12:00:00Z");
+    const list = new TodoList({ now: () => now });
+    list.add("renew passport", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not hold a completed todo, however long past its due date", () => {
+    const now = new Date("2026-08-01T12:00:00Z");
+    const list = new TodoList({ now: () => now });
+    const passport = list.add("renew passport", new Date("2000-01-01T00:00:00Z"));
+    list.complete(passport.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not hold an undated todo", () => {
+    const now = new Date("2026-08-01T12:00:00Z");
+    const list = new TodoList({ now: () => now });
+    list.add("someday");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-08-01T12:00:00Z");
+    const list = new TodoList({ now: () => now });
+    const second = list.add("second", new Date("2020-01-01T00:00:00Z"));
+    const first = list.add("first", new Date("2019-01-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([second.id, first.id]);
+  });
+
+  it("measures against the real clock when constructed without one", () => {
+    const list = new TodoList();
+    list.add("long overdue", new Date("2000-01-01T00:00:00Z"));
+    list.add("far future", new Date("2999-01-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["long overdue"]);
+  });
+});
