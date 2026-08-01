@@ -30,7 +30,7 @@ _Avoid_: status, state, done flag.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
-**Insertion order**: the order todos were added, which is the order a **listing** comes back in today.
+**Insertion order**: the order todos were added, which is the order a **listing** asked for with no order comes back in.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
 
@@ -43,7 +43,7 @@ It is stable: todos sharing a due date keep their **insertion order** relative t
 Every filter can be asked for in due-date order; a listing asked for with no order stays in insertion order, unchanged.
 _Avoid_: sorted order, chronological order.
 
-**Listing**: one answer from the **todo list** to a **filter**, as a fresh array.
+**Listing**: one answer from the **todo list** to a **filter** and an order, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 
@@ -53,5 +53,5 @@ _Avoid_: time source, now provider.
 
 **Overdue**: a **todo** that is dated, **open**, and its **due date** is strictly before the **clock**'s now.
 A todo due exactly at now is not overdue yet, a **completed** todo is never overdue however late, and an **undated** todo is never overdue.
-The overdue answer comes back in **insertion order**, like every other **listing**.
+The overdue answer comes back in **insertion order**.
 _Avoid_: late, past due.

@@ -12,8 +12,9 @@ export type TodoOrder = "insertion" | "due-date";
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the default: `list` returns todos in the order they
+ * were added unless due-date order is asked for, and adding never reorders
+ * what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -108,14 +109,14 @@ function unknownTodo(id: TodoId): UnknownTodoError {
 
 /** `todos` sorted soonest due date first, stable within an equal due date. */
 function sortByDueDate(todos: Todo[]): Todo[] {
-  return [...todos].sort((a, b) => compareByDueDate(a, b));
+  return [...todos].sort(compareByDueDate);
 }
 
-function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === null && b.dueDate === null) return 0;
-  if (a.dueDate === null) return 1;
-  if (b.dueDate === null) return -1;
-  return a.dueDate.getTime() - b.dueDate.getTime();
+function compareByDueDate(left: Todo, right: Todo): number {
+  if (left.dueDate === null && right.dueDate === null) return 0;
+  if (left.dueDate === null) return 1;
+  if (right.dueDate === null) return -1;
+  return left.dueDate.getTime() - right.dueDate.getTime();
 }
 
 function matches(todo: Todo, filter: TodoFilter): boolean {
