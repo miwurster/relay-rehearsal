@@ -283,22 +283,43 @@ describe("listing todos in due-date order", () => {
   it("keeps the order added for todos sharing a due date", () => {
     const list = new TodoList();
     const sharedDueDate = new Date("2026-08-10T00:00:00.000Z");
-    list.add("added first", sharedDueDate);
-    list.add("added second", sharedDueDate);
+    list.add("dated, due last", new Date("2026-08-20T00:00:00.000Z"));
+    list.add("shared due date, added first", sharedDueDate);
+    list.add("shared due date, added second", sharedDueDate);
+    list.add("undated first");
+    list.add("undated second");
 
     const titles = list.list("all", "due-date").map((todo) => todo.title);
 
-    expect(titles).toEqual(["added first", "added second"]);
+    expect(titles).toEqual([
+      "shared due date, added first",
+      "shared due date, added second",
+      "dated, due last",
+      "undated first",
+      "undated second",
+    ]);
   });
 
   it("keeps the order added among the undated todos", () => {
     const list = new TodoList();
-    list.add("added first");
-    list.add("added second");
+    const sharedDueDate = new Date("2026-08-10T00:00:00.000Z");
+    list.add("dated, due later", new Date("2026-08-20T00:00:00.000Z"));
+    list.add("shared due date, added first", sharedDueDate);
+    list.add("shared due date, added second", sharedDueDate);
+    list.add("dated, due earlier", new Date("2026-08-01T00:00:00.000Z"));
+    list.add("undated first");
+    list.add("undated second");
 
     const titles = list.list("all", "due-date").map((todo) => todo.title);
 
-    expect(titles).toEqual(["added first", "added second"]);
+    expect(titles).toEqual([
+      "dated, due earlier",
+      "shared due date, added first",
+      "shared due date, added second",
+      "dated, due later",
+      "undated first",
+      "undated second",
+    ]);
   });
 
   it("applies to a filtered listing, not only to the unfiltered one", () => {
@@ -311,6 +332,19 @@ describe("listing todos in due-date order", () => {
     const titles = list.list("open", "due-date").map((todo) => todo.title);
 
     expect(titles).toEqual(["due second, open", "due last, open"]);
+  });
+
+  it("applies to a completed listing too", () => {
+    const list = new TodoList();
+    list.add("due last, open", new Date("2026-08-20T00:00:00.000Z"));
+    const completedFirst = list.add("due first, completed", new Date("2026-08-01T00:00:00.000Z"));
+    const completedSecond = list.add("due second, completed", new Date("2026-08-10T00:00:00.000Z"));
+    list.complete(completedFirst.id);
+    list.complete(completedSecond.id);
+
+    const titles = list.list("completed", "due-date").map((todo) => todo.title);
+
+    expect(titles).toEqual(["due first, completed", "due second, completed"]);
   });
 
   it("answers a listing asked for with no order in the order todos were added", () => {

@@ -29,7 +29,7 @@ _Avoid_: no date, null date, missing date.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
-**Insertion order**: the order todos were added, which is the order a **listing** comes back in today.
+**Insertion order**: the order todos were added, and the default order a **listing** comes back in unless **due-date order** is asked for instead.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
 
@@ -42,7 +42,7 @@ Todos sharing a due date, and the undated todos among themselves, keep **inserti
 Due-date order applies alongside any **filter**, and is asked for instead of insertion order, not in place of a filter.
 _Avoid_: sorted, chronological order.
 
-**Listing**: one answer from the **todo list** to a **filter**, as a fresh array.
+**Listing**: one answer from the **todo list** to a **filter** and an **order**, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 

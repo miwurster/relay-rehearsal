@@ -12,8 +12,9 @@ export type TodoOrder = "insertion" | "due-date";
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is `list`'s default: todos come back in the order they were
+ * added unless due-date order is asked for instead, and adding never reorders
+ * what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -65,7 +66,7 @@ export class TodoList {
    */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const matching = this.listing((todo) => matches(todo, filter));
-    return order === "due-date" ? sortByDueDate(matching) : matching;
+    return order === "due-date" ? inDueDateOrder(matching) : matching;
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -120,11 +121,11 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 }
 
 /** The todos in due-date order: soonest due date first, undated last, stable within ties. */
-function sortByDueDate(todos: Todo[]): Todo[] {
-  return [...todos].sort(compareByDueDate);
+function inDueDateOrder(todos: Todo[]): Todo[] {
+  return [...todos].sort(byDueDateOrder);
 }
 
-function compareByDueDate(first: Todo, second: Todo): number {
+function byDueDateOrder(first: Todo, second: Todo): number {
   if (first.dueDate === undefined && second.dueDate === undefined) return 0;
   if (first.dueDate === undefined) return 1;
   if (second.dueDate === undefined) return -1;
