@@ -49,13 +49,13 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+    return this.collect((todo) => matches(todo, filter));
   }
 
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock.now();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
+    return this.collect((todo) => isOverdue(todo, now));
   }
 
   private find(id: TodoId): Todo {
@@ -67,6 +67,11 @@ export class TodoList {
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return cloneTodo(todo);
+  }
+
+  /** The todos matching `keep`, in the order they were added, cloned on the way out. */
+  private collect(keep: (todo: Todo) => boolean): Todo[] {
+    return [...this.todos.values()].filter(keep).map(cloneTodo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */

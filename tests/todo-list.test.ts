@@ -245,10 +245,10 @@ describe("listing overdue todos", () => {
   it("holds a dated, open todo due before the clock's now, and not one due after it", () => {
     const now = new Date("2026-08-01T12:00:00Z");
     const list = new TodoList({ now: () => now });
-    const late = list.add("renew passport", new Date("2026-07-01T00:00:00Z"));
+    const overduePassport = list.add("renew passport", new Date("2026-07-01T00:00:00Z"));
     list.add("plan trip", new Date("2026-09-01T00:00:00Z"));
 
-    expect(list.overdue().map((todo) => todo.id)).toEqual([late.id]);
+    expect(list.overdue().map((todo) => todo.id)).toEqual([overduePassport.id]);
   });
 
   it("does not hold a todo due exactly at the clock's now", () => {
@@ -279,10 +279,10 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2026-08-01T12:00:00Z");
     const list = new TodoList({ now: () => now });
-    const second = list.add("second", new Date("2020-01-01T00:00:00Z"));
-    const first = list.add("first", new Date("2019-01-01T00:00:00Z"));
+    const addedFirst = list.add("second", new Date("2020-01-01T00:00:00Z"));
+    const addedSecond = list.add("first", new Date("2019-01-01T00:00:00Z"));
 
-    expect(list.overdue().map((todo) => todo.id)).toEqual([second.id, first.id]);
+    expect(list.overdue().map((todo) => todo.id)).toEqual([addedFirst.id, addedSecond.id]);
   });
 
   it("measures against the real clock when constructed without one", () => {
