@@ -20,3 +20,11 @@ export class UnknownTodoError extends Error {
     this.name = "UnknownTodoError";
   }
 }
+
+/** A due date that is not a usable point in time. */
+export class InvalidDueDateError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidDueDateError";
+  }
+}
