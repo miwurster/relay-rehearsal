@@ -140,16 +140,16 @@ describe("adding a todo after removing one", () => {
   it("mints an id no todo in the list has ever carried", () => {
     const list = new TodoList();
 
-    const a = list.add("a");
-    const b = list.add("b");
-    list.remove(a.id);
-    const c = list.add("c");
-    list.remove(b.id);
-    list.remove(c.id);
-    const d = list.add("d");
-    const e = list.add("e");
+    const first = list.add("a");
+    const second = list.add("b");
+    list.remove(first.id);
+    const third = list.add("c");
+    list.remove(second.id);
+    list.remove(third.id);
+    const fourth = list.add("d");
+    const fifth = list.add("e");
 
-    const allIds = [a.id, b.id, c.id, d.id, e.id];
+    const allIds = [first.id, second.id, third.id, fourth.id, fifth.id];
     expect(new Set(allIds).size).toBe(allIds.length);
   });
 
