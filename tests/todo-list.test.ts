@@ -122,6 +122,49 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("leaves every remaining todo in place", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(second.id).title).toBe("second");
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("mints an id no todo in the list has ever carried", () => {
+    const list = new TodoList();
+
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    list.remove(b.id);
+    list.remove(c.id);
+    const d = list.add("d");
+    const e = list.add("e");
+
+    const allIds = [a.id, b.id, c.id, d.id, e.id];
+    expect(new Set(allIds).size).toBe(allIds.length);
+  });
+
+  it("works after every todo is removed and the list is reused", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.remove(first.id);
+
+    const second = list.add("second");
+
+    expect(second.id).not.toBe(first.id);
+    expect(list.list().map((todo) => todo.title)).toEqual(["second"]);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
