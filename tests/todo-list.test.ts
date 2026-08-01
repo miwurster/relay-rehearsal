@@ -298,17 +298,30 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2026-08-01");
     const list = new TodoList(clockReading(now));
-    const first = list.add("first", new Date("2026-07-01"));
+    const first = list.add("first", new Date("2026-07-15"));
     list.add("undated");
-    const third = list.add("third", new Date("2026-07-15"));
+    const third = list.add("third", new Date("2026-07-01"));
 
     expect(list.overdue().map((overdue) => overdue.id)).toEqual([first.id, third.id]);
   });
 
+  it("does not let mutating a returned overdue todo affect the list", () => {
+    const now = new Date("2026-08-01");
+    const list = new TodoList(clockReading(now));
+    const todo = list.add("buy milk", new Date("2026-07-31"));
+
+    const overdue = list.overdue();
+    expect(overdue).toHaveLength(1);
+    overdue[0]?.dueDate?.setFullYear(2099);
+
+    expect(list.overdue().map((stillOverdue) => stillOverdue.id)).toEqual([todo.id]);
+  });
+
   it("reads the real clock when constructed with none", () => {
     const list = new TodoList();
-    list.add("buy milk", new Date("2000-01-01"));
+    const overdue = list.add("overdue", new Date(Date.now() - 1000));
+    list.add("not yet due", new Date(Date.now() + 86_400_000));
 
-    expect(list.overdue()).toHaveLength(1);
+    expect(list.overdue().map((todo) => todo.id)).toEqual([overdue.id]);
   });
 });
