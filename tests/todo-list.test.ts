@@ -249,4 +249,24 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
   });
+
+  it("searches across open and completed todos when no filter is given", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy soy milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk", "buy soy milk"]);
+  });
+
+  it("leaves the list unchanged", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
+  });
 });
