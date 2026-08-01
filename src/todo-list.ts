@@ -12,8 +12,9 @@ export type TodoOrder = "insertion" | "dueDate";
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added unless asked for a different order, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -53,7 +54,7 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order the order names, insertion order by default. */
+  /** The todos the filter asks for, in insertion order or due-date order, insertion order by default. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
     return orderTodos(matching, order).map(cloneTodo);
@@ -115,10 +116,10 @@ function orderTodos(todos: Todo[], order: TodoOrder): Todo[] {
   return [...todos].sort(compareByDueDate);
 }
 
-function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === null) return b.dueDate === null ? 0 : 1;
-  if (b.dueDate === null) return -1;
-  return a.dueDate.getTime() - b.dueDate.getTime();
+function compareByDueDate(first: Todo, second: Todo): number {
+  if (first.dueDate === null) return second.dueDate === null ? 0 : 1;
+  if (second.dueDate === null) return -1;
+  return first.dueDate.getTime() - second.dueDate.getTime();
 }
 
 function isOverdue(todo: Todo, now: Date): boolean {

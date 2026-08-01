@@ -208,6 +208,14 @@ describe("listing todos", () => {
     expect(list.list().map((todo) => todo.title)).toEqual(["first", "second"]);
   });
 
+  it("answers them in the order they were added when insertion order is asked for explicitly", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "insertion").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
   it("answers only the open ones when asked for open", () => {
     const list = new TodoList();
     const milk = list.add("buy milk");
@@ -273,18 +281,20 @@ describe("listing todos in due-date order", () => {
   it("keeps todos sharing a due date in the order they were added", () => {
     const list = new TodoList();
     const sameDate = new Date("2026-08-10");
+    const later = list.add("later", new Date("2026-08-20"));
     const first = list.add("first", new Date(sameDate.getTime()));
     const second = list.add("second", new Date(sameDate.getTime()));
 
-    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([first.id, second.id]);
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([first.id, second.id, later.id]);
   });
 
   it("keeps undated todos in the order they were added, among themselves", () => {
     const list = new TodoList();
     const first = list.add("first");
     const second = list.add("second");
+    const dated = list.add("dated", new Date("2026-08-10"));
 
-    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([first.id, second.id]);
+    expect(list.list("all", "dueDate").map((todo) => todo.id)).toEqual([dated.id, first.id, second.id]);
   });
 
   it("orders within a filter, rather than only across the whole list", () => {
@@ -295,6 +305,16 @@ describe("listing todos in due-date order", () => {
     const laterOpen = list.add("later open", new Date("2026-08-25"));
 
     expect(list.list("open", "dueDate").map((todo) => todo.id)).toEqual([soonOpen.id, laterOpen.id]);
+  });
+
+  it("orders the completed filter by due date too", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-08-20"));
+    const sooner = list.add("sooner", new Date("2026-08-10"));
+    list.complete(later.id);
+    list.complete(sooner.id);
+
+    expect(list.list("completed", "dueDate").map((todo) => todo.id)).toEqual([sooner.id, later.id]);
   });
 
   it("still answers in insertion order when no order is given", () => {
