@@ -256,3 +256,66 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the supplied now", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2026-08-14T00:00:00.000Z"));
+
+    expect(list.overdue().map((overdue) => overdue.id)).toEqual([todo.id]);
+  });
+
+  it("excludes a dated, open todo due after the supplied now", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-08-16T00:00:00.000Z"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due exactly at the supplied now", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2000-01-01T00:00:00.000Z"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added, not in due-date order", () => {
+    const now = new Date("2026-08-15T00:00:00.000Z");
+    const list = new TodoList(() => now);
+    list.add("added first, due later", new Date("2026-08-02T00:00:00.000Z"));
+    list.add("added second, due earlier", new Date("2026-08-01T00:00:00.000Z"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["added first, due later", "added second, due earlier"]);
+  });
+
+  it("measures a list constructed with no clock against the real one", () => {
+    const list = new TodoList();
+    const pastDue = list.add("buy milk", new Date(Date.now() - 1000));
+    const futureDue = list.add("buy bread", new Date(Date.now() + 1000 * 60 * 60 * 24));
+
+    const overdueIds = list.overdue().map((todo) => todo.id);
+
+    expect(overdueIds).toEqual([pastDue.id]);
+    expect(overdueIds).not.toContain(futureDue.id);
+  });
+});
