@@ -147,18 +147,18 @@ describe("removing a todo", () => {
 
   it("keeps every todo correct across many interleaved removes and adds", () => {
     const list = new TodoList();
-    const a = list.add("a");
-    const b = list.add("b");
-    list.remove(a.id);
-    const c = list.add("c");
-    list.remove(b.id);
-    const d = list.add("d");
-    const e = list.add("e");
-    list.remove(c.id);
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    const third = list.add("third");
+    list.remove(second.id);
+    const fourth = list.add("fourth");
+    const fifth = list.add("fifth");
+    list.remove(third.id);
 
-    expect(list.list().map((todo) => todo.title)).toEqual(["d", "e"]);
-    expect(list.get(d.id).title).toBe("d");
-    expect(list.get(e.id).title).toBe("e");
+    expect(list.list().map((todo) => todo.title)).toEqual(["fourth", "fifth"]);
+    expect(list.get(fourth.id).title).toBe("fourth");
+    expect(list.get(fifth.id).title).toBe("fifth");
   });
 
   it("mints ids that have never been used, even after emptying the list", () => {
