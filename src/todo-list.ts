@@ -14,31 +14,29 @@ export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
 
   /** Add a todo with the given title and optional due date, and answer the todo that was added. */
-  add(title: string, dueDate?: Date | null): Todo {
+  add(title: string, dueDate?: Date): Todo {
     const accepted = requireTitle(title);
     const acceptedDueDate = requireUsableDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return cloneTodo(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
-    const todo = this.todos.get(id);
-    if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return cloneTodo(this.find(id));
   }
 
   rename(id: TodoId, title: string): Todo {
-    return this.replace({ ...this.get(id), title: requireTitle(title) });
+    return this.replace({ ...this.find(id), title: requireTitle(title) });
   }
 
   complete(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: true });
+    return this.replace({ ...this.find(id), completed: true });
   }
 
   reopen(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: false });
+    return this.replace({ ...this.find(id), completed: false });
   }
 
   remove(id: TodoId): void {
@@ -47,12 +45,18 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+  }
+
+  private find(id: TodoId): Todo {
+    const todo = this.todos.get(id);
+    if (todo === undefined) throw unknownTodo(id);
+    return todo;
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return cloneTodo(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -67,12 +71,16 @@ function requireTitle(title: string): string {
   return trimmed;
 }
 
-function requireUsableDueDate(dueDate: Date | null | undefined): Date | null {
-  if (dueDate === null || dueDate === undefined) return null;
+function requireUsableDueDate(dueDate: Date | undefined): Date | null {
+  if (dueDate === undefined) return null;
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return new Date(dueDate.getTime());
+}
+
+function cloneTodo(todo: Todo): Todo {
+  return { ...todo, dueDate: todo.dueDate === null ? null : new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

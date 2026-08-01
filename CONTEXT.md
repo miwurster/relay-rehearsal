@@ -10,7 +10,8 @@ A todo is read-only to callers: the **todo list** replaces it rather than mutati
 _Avoid_: task, item, entry.
 
 **Due date**: when a **todo** is meant to be done, set at most once, when it is added.
-A due date in the past is ordinary, not an error. Renaming, completing and reopening a todo all leave its due date as it was.
+A due date in the past is ordinary, not an error.
+Renaming, completing and reopening a todo all leave its due date as it was.
 A due date that is not a usable point in time is refused with `InvalidDueDateError`.
 _Avoid_: deadline, due by, target date.
 

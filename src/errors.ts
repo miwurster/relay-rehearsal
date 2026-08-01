@@ -1,7 +1,7 @@
 /**
- * The two ways a caller can be wrong.
+ * The three ways a caller can be wrong.
  *
- * Both are thrown rather than returned, because a caller that ignores a return
+ * All three are thrown rather than returned, because a caller that ignores a return
  * value goes on to work with a list that did not change.
  */
 
