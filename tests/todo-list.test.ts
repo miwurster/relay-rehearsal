@@ -120,6 +120,39 @@ describe("removing a todo", () => {
 
     expect(() => list.remove("nope")).toThrow(UnknownTodoError);
   });
+
+  it("does not let a later add reuse the id of a todo it removed", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+
+    list.remove(first.id);
+    const fourth = list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(fourth.id).not.toBe(third.id);
+    expect(list.get(second.id).title).toBe("second");
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("keeps every todo distinct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    const d = list.add("d");
+    list.remove(c.id);
+    list.remove(d.id);
+    const e = list.add("e");
+    const f = list.add("f");
+    list.remove(e.id);
+    const g = list.add("g");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["b", "f", "g"]);
+    expect(new Set([a.id, c.id, d.id, e.id, f.id, g.id]).size).toBe(6);
+  });
 });
 
 describe("listing todos", () => {
