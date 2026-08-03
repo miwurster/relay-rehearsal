@@ -125,10 +125,10 @@ describe("removing a todo", () => {
 describe("adding a todo after removing one", () => {
   it("leaves every remaining todo in place", () => {
     const list = new TodoList();
-    list.add("first");
+    const first = list.add("first");
     const second = list.add("second");
     const third = list.add("third");
-    list.remove(list.list()[0]!.id);
+    list.remove(first.id);
 
     list.add("fourth");
 
@@ -137,13 +137,26 @@ describe("adding a todo after removing one", () => {
 
   it("never hands the removed todo's id to another todo", () => {
     const list = new TodoList();
+    list.add("first");
+    const second = list.add("second");
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(second.id);
+  });
+
+  it("hands out an id never used before once every todo has been removed", () => {
+    const list = new TodoList();
     const first = list.add("first");
-    list.add("second");
+    const second = list.add("second");
     list.remove(first.id);
+    list.remove(second.id);
 
-    const fourth = list.add("fourth");
+    const third = list.add("third");
 
-    expect(fourth.id).not.toBe(first.id);
+    expect(list.list()).toEqual([third]);
+    expect([first.id, second.id]).not.toContain(third.id);
   });
 
   it("keeps the list correct through many interleaved removes and adds", () => {
