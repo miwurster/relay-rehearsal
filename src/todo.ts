@@ -11,4 +11,5 @@ export interface Todo {
   readonly id: TodoId;
   readonly title: string;
   readonly completed: boolean;
+  readonly dueDate: Date | undefined;
 }
