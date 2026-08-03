@@ -136,6 +136,30 @@ describe("adding a todo after removing one", () => {
     expect(list.get(third.id).title).toBe("third");
   });
 
+  it("adds correctly after every todo has been removed", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("never hands a removed id to a later todo", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk");
+    list.remove(added.id);
+
+    const next = list.add("buy bread");
+
+    expect(next.id).not.toBe(added.id);
+    expect(() => list.get(added.id)).toThrow(UnknownTodoError);
+  });
+
   it("keeps the list correct through many interleaved removes and adds", () => {
     const list = new TodoList();
     const a = list.add("a");
