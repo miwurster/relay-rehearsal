@@ -4,6 +4,9 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "insertion" | "due-date";
+
 /** What a todo list measures "now" against. */
 export type Clock = () => Date;
 
@@ -53,9 +56,11 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+  /** The todos the filter asks for, in the given order. Defaults to the order they were added in. */
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    if (order === "due-date") matching.sort(compareByDueDate);
+    return matching.map(cloneTodo);
   }
 
   /** The dated, open todos due before the clock's now, in the order they were added. */
@@ -106,4 +111,11 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 
 function isOverdue(todo: Todo, now: Date): boolean {
   return todo.dueDate !== undefined && !todo.completed && todo.dueDate.getTime() < now.getTime();
+}
+
+/** Soonest due date first, every undated todo after every dated one, ties left in place for a stable sort. */
+function compareByDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
+  if (b.dueDate === undefined) return -1;
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }
