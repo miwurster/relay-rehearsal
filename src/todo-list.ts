@@ -61,7 +61,7 @@ export class TodoList {
   /** The dated, open todos due before the clock's now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
+    return this.list().filter((todo) => isOverdue(todo, now));
   }
 
   private replace(todo: Todo): Todo {
