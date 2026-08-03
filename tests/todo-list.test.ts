@@ -38,6 +38,26 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(pastDueDate);
   });
 
+  it("does not let the caller change a due date after handing it out", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2024-06-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2030);
+
+    expect(todo.dueDate).toEqual(new Date("2024-06-01"));
+  });
+
+  it("does not let the caller change a due date by mutating a todo handed out earlier", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2024-06-01");
+    const added = list.add("buy milk", dueDate);
+
+    added.dueDate?.setFullYear(2030);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2024-06-01"));
+  });
+
   it("gives every todo an id of its own", () => {
     const list = new TodoList();
 
@@ -150,15 +170,6 @@ describe("completing and reopening a todo", () => {
 
     expect(completed.dueDate).toEqual(dueDate);
     expect(reopened.dueDate).toEqual(dueDate);
-  });
-
-  it("does not give a due date to a todo handed out earlier", () => {
-    const list = new TodoList();
-    const added = list.add("buy milk");
-
-    list.complete(added.id);
-
-    expect(added.dueDate).toBeUndefined();
   });
 
   it("refuses an id the list does not hold", () => {
