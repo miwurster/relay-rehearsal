@@ -43,3 +43,12 @@ _Avoid_: query, selector, predicate.
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Overdue**: a **todo** that is dated, **open**, and whose **due date** is before the **clock**'s now.
+A todo due exactly at now is not yet overdue, and a completed or **undated** todo is never overdue.
+The overdue **listing** comes back in **insertion order**, like any other.
+_Avoid_: late, past due, expired.
+
+**Clock**: what the **todo list** reads now from when it decides what is **overdue**.
+A **todo list** built without one reads the real clock; one built with one is measured against that instead.
+_Avoid_: time source, now provider.

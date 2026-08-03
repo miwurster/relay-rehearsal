@@ -215,6 +215,67 @@ describe("removing a todo", () => {
   });
 });
 
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the supplied now", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2030-01-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("excludes a dated, open todo due after the supplied now", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2030-12-01"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due exactly at the supplied now", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2030-06-01");
+    const list = new TodoList(() => now);
+    list.add("first", new Date("2030-01-01"));
+    list.add("second, not overdue", new Date("2030-12-01"));
+    list.add("third", new Date("2030-02-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "third"]);
+  });
+
+  it("measures a list constructed with no clock against the real one", () => {
+    const list = new TodoList();
+    list.add("long overdue", new Date("2000-01-01"));
+    list.add("not due yet", new Date("2999-01-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["long overdue"]);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
