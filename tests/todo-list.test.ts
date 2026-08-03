@@ -281,9 +281,19 @@ describe("listing todos in due-date order", () => {
     const later = list.add("later", new Date("2026-02-01"));
     const sooner = list.add("sooner", new Date("2026-01-01"));
     list.complete(sooner.id);
-    const reopenedSooner = list.add("reopened sooner", new Date("2026-01-01"));
+    const alsoSooner = list.add("also sooner", new Date("2026-01-01"));
 
-    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([reopenedSooner.id, later.id]);
+    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([alsoSooner.id, later.id]);
+  });
+
+  it("applies to the completed filter, alongside due-date order", () => {
+    const list = new TodoList();
+    const sooner = list.add("sooner", new Date("2026-01-01"));
+    const later = list.add("later", new Date("2026-02-01"));
+    list.complete(later.id);
+    list.complete(sooner.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.id)).toEqual([sooner.id, later.id]);
   });
 
   it("leaves a listing asked for with no order in the order todos were added", () => {
