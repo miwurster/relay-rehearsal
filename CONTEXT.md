@@ -49,5 +49,7 @@ It is part of the **todo list**'s public interface, not an internal detail, so a
 _Avoid_: time source, now provider.
 
 **Overdue**: a **todo** that is dated, still **open**, and its **due date** is before the **clock**'s now.
-A todo due exactly at now is not yet overdue, a completed todo is never overdue, and an **undated** todo is never overdue.
+A todo due exactly at now is not yet overdue.
+A completed todo is never overdue.
+An **undated** todo is never overdue.
 _Avoid_: late, past due.

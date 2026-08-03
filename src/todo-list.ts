@@ -15,12 +15,9 @@ export type Clock = () => Date;
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
-  private readonly clock: Clock;
 
   /** A list measured against the given clock, or the real clock if none is given. */
-  constructor(clock: Clock = () => new Date()) {
-    this.clock = clock;
-  }
+  constructor(private readonly clock: Clock = () => new Date()) {}
 
   /** Add a todo with the given title and, optionally, a due date, and answer the todo that was added. */
   add(title: string, dueDate?: Date): Todo {
