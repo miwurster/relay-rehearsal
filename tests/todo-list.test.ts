@@ -230,13 +230,33 @@ describe("searching todos", () => {
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
   });
 
-  it("composes with a filter", () => {
+  it("composes with the all filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
+  });
+
+  it("composes with the open filter", () => {
     const list = new TodoList();
     const milk = list.add("buy milk");
     list.add("buy oat milk");
     list.complete(milk.id);
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
+  });
+
+  it("composes with the completed filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
   });
 
@@ -248,5 +268,16 @@ describe("searching todos", () => {
     list.add("buy more milk");
 
     expect(listing).toHaveLength(1);
+  });
+
+  it("is read-only", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 });
