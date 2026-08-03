@@ -36,14 +36,14 @@ export class TodoList {
         ? { id, title: acceptedTitle, completed: false }
         : { id, title: acceptedTitle, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return cloneTodo(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return cloneTodo(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -64,19 +64,19 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added, or in due-date order if asked. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
-    const todos = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    const todos = [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
     return order === "dueDate" ? todos.sort(compareByDueDate) : todos;
   }
 
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now));
+    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return cloneTodo(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -95,6 +95,11 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (dueDate === undefined) return undefined;
   if (Number.isNaN(dueDate.getTime())) throw new InvalidDueDateError("A due date must be a usable point in time.");
   return new Date(dueDate.getTime());
+}
+
+/** A copy of the todo, with its own due date, so a caller can never reach the list's stored one. */
+function cloneTodo(todo: Todo): Todo {
+  return todo.dueDate === undefined ? { ...todo } : { ...todo, dueDate: new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
