@@ -32,6 +32,10 @@ _Avoid_: natural order, default order.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
+**Search**: text a **listing** is asked to match against a **todo**'s **title**, case-folded and trimmed of surrounding whitespace before matching.
+Text that is empty once trimmed matches nothing, and a search composes with any **filter**.
+_Avoid_: query, term, keyword.
+
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.

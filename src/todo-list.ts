@@ -44,9 +44,11 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+  /** The todos the filter asks for, in the order they were added, narrowed to a title search when one is given. */
+  list(filter: TodoFilter = "all", search?: string): Todo[] {
+    return [...this.todos.values()]
+      .filter((todo) => matches(todo, filter))
+      .filter((todo) => search === undefined || matchesSearch(todo, search));
   }
 
   private replace(todo: Todo): Todo {
@@ -74,4 +76,10 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
+}
+
+function matchesSearch(todo: Todo, search: string): boolean {
+  const term = search.trim().toLowerCase();
+  if (term === "") return false;
+  return todo.title.toLowerCase().includes(term);
 }
