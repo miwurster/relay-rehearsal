@@ -72,7 +72,7 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return new Date(dueDate.getTime());
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

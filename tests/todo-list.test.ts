@@ -45,6 +45,16 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(dueDate);
   });
 
+  it("leaves the todo unchanged when the caller's due date is mutated afterwards", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2030);
+
+    expect(todo.dueDate).toEqual(new Date("2026-01-01"));
+  });
+
   it("comes back undated when given no due date", () => {
     const list = new TodoList();
 
