@@ -292,11 +292,18 @@ describe("listing todos in due-date order", () => {
 
   it("orders within a filter rather than replacing it", () => {
     const list = new TodoList();
-    const milk = list.add("buy milk", new Date("2024-06-15"));
-    list.add("buy bread", new Date("2024-06-01"));
-    list.complete(milk.id);
+    const laterCompleted = list.add("later completed", new Date("2024-06-15"));
+    const soonerCompleted = list.add("sooner completed", new Date("2024-06-01"));
+    list.add("later open", new Date("2024-06-20"));
+    list.add("sooner open", new Date("2024-06-10"));
+    list.complete(laterCompleted.id);
+    list.complete(soonerCompleted.id);
 
-    expect(list.list("completed", "dueDate").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.list("completed", "dueDate").map((todo) => todo.title)).toEqual([
+      "sooner completed",
+      "later completed",
+    ]);
+    expect(list.list("open", "dueDate").map((todo) => todo.title)).toEqual(["sooner open", "later open"]);
   });
 
   it("answers a listing asked for with no order in the order todos were added", () => {

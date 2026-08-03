@@ -13,8 +13,9 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's order unless another order is asked for:
+ * `list` returns todos in the order they were added, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -57,7 +58,7 @@ export class TodoList {
   /** The todos the filter asks for, in the order they were added unless another order is asked for. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return orderTodos(matching, order).map(expose);
+    return (order === "dueDate" ? matching.sort(byDueDate) : matching).map(expose);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -98,11 +99,6 @@ function expose(todo: Todo): Todo {
 
 function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
-}
-
-function orderTodos(todos: Todo[], order: TodoOrder): Todo[] {
-  if (order === "insertion") return todos;
-  return [...todos].sort(byDueDate);
 }
 
 function byDueDate(a: Todo, b: Todo): number {
