@@ -78,6 +78,25 @@ describe("adding a todo with a due date", () => {
 
     expect(refused.add("buy milk").id).toBe(untouched.add("buy milk").id);
   });
+
+  it("does not let the caller's Date, mutated after add, change the stored due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2030-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    dueDate.setFullYear(2099);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2030-01-01"));
+  });
+
+  it("does not let a mutation of a handed-out due date change the stored due date", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk", new Date("2030-01-01"));
+
+    added.dueDate?.setFullYear(2099);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2030-01-01"));
+  });
 });
 
 describe("reading a todo", () => {
