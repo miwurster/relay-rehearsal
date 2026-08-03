@@ -17,6 +17,10 @@ A todo added without one is **undated**, not a due date waiting to be supplied, 
 A due date that is not a usable point in time is refused with `InvalidDueDateError`.
 _Avoid_: deadline, due by, target date.
 
+**Clock**: the source of now a **todo list** measures **overdue** against, given to the list when it is constructed.
+A list constructed with no clock reads the real one; a list constructed with one is measured against that instead.
+_Avoid_: time source, now provider.
+
 **Undated**: a **todo** added without a **due date** — a state of its own, distinguishable from one carrying any date.
 _Avoid_: no date, unscheduled.
 
@@ -43,3 +47,8 @@ _Avoid_: query, selector, predicate.
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Overdue**: a **todo** that is dated, **open**, and due before the **todo list**'s **clock**.
+A todo due exactly at the clock's now is not yet overdue, and a completed or **undated** todo is never overdue.
+The overdue listing comes back in **insertion order**, like any other **listing**.
+_Avoid_: late, past due.

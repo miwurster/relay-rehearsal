@@ -240,3 +240,63 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the clock's now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([todo.id]);
+  });
+
+  it("excludes a dated, open todo due after the clock's now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-02-01"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due exactly at the clock's now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("not overdue", new Date("2026-02-01"));
+    const first = list.add("first", new Date("2026-01-01"));
+    const second = list.add("second", new Date("2026-01-10"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([first.id, second.id]);
+  });
+
+  it("reads the real clock when constructed with none", () => {
+    const list = new TodoList();
+    list.add("long overdue", new Date("2000-01-01"));
+
+    expect(list.overdue()).toHaveLength(1);
+  });
+});
