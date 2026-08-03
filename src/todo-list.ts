@@ -49,6 +49,11 @@ export class TodoList {
     return [...this.todos.values()].filter((todo) => matches(todo, filter));
   }
 
+  /** The todos the filter asks for whose title contains the text, in the order they were added. */
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    return this.list(filter).filter((todo) => titleContains(todo, text));
+  }
+
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return todo;
@@ -74,4 +79,10 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
+}
+
+function titleContains(todo: Todo, text: string): boolean {
+  const trimmed = text.trim().toLowerCase();
+  if (trimmed === "") return false;
+  return todo.title.toLowerCase().includes(trimmed);
 }
