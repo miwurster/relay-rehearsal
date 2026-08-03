@@ -221,15 +221,34 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
   });
 
-  it("answers matches in the order they were added", () => {
+  it("answers the todos it finds in the order they were added", () => {
     const list = new TodoList();
     list.add("buy milk");
     list.add("buy bread");
     list.add("buy oat milk");
 
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
+  });
+
+  it("matches text in the middle of the title", () => {
+    const list = new TodoList();
+    list.add("buy oat milk today");
+
+    expect(list.search("oat").map((todo) => todo.title)).toEqual(["buy oat milk today"]);
+  });
+
+  it("changes nothing about the list", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 
   it("answers a listing that a later add does not reach", () => {
