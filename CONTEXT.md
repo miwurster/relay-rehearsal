@@ -52,3 +52,8 @@ _Avoid_: late, past due, expired.
 **Clock**: what "now" means to the **todo list**.
 It is given at construction or defaults to the real one.
 _Avoid_: time source, now function, timer.
+
+**Due-date order**: a **listing** with the soonest **due date** first and every **undated** **todo** after every dated one.
+Todos sharing a due date, and undated todos among themselves, keep **insertion order**.
+Any **filter** can be asked for in due-date order; asking for none keeps insertion order.
+_Avoid_: sorted order, priority order, deadline order.
