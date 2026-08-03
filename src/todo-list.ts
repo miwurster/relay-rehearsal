@@ -79,7 +79,7 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 }
 
 function matchesSearch(todo: Todo, search: string): boolean {
-  const term = search.trim().toLowerCase();
-  if (term === "") return false;
-  return todo.title.toLowerCase().includes(term);
+  const normalized = search.trim().toLowerCase();
+  if (normalized === "") return false;
+  return todo.title.toLowerCase().includes(normalized);
 }
