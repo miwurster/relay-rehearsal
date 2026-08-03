@@ -14,7 +14,8 @@ export type Clock = () => Date;
  * A list of todos, held in memory, with ids it hands out itself.
  *
  * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * were added unless a listing asks for another order, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
