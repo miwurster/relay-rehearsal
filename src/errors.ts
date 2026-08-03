@@ -1,7 +1,7 @@
 /**
- * The two ways a caller can be wrong.
+ * The ways a caller can be wrong.
  *
- * Both are thrown rather than returned, because a caller that ignores a return
+ * All are thrown rather than returned, because a caller that ignores a return
  * value goes on to work with a list that did not change.
  */
 
@@ -18,5 +18,13 @@ export class UnknownTodoError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "UnknownTodoError";
+  }
+}
+
+/** A due date that is not a usable point in time. */
+export class InvalidDueDateError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidDueDateError";
   }
 }
