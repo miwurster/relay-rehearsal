@@ -251,6 +251,63 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2024-06-15"));
+    list.add("soonest", new Date("2024-06-01"));
+    list.add("middle", new Date("2024-06-08"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual(["soonest", "middle", "later"]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated first");
+    list.add("dated", new Date("2024-06-01"));
+    list.add("undated second");
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([
+      "dated",
+      "undated first",
+      "undated second",
+    ]);
+  });
+
+  it("keeps the order added among todos sharing a due date, and among the undated ones", () => {
+    const list = new TodoList();
+    const sameDueDate = new Date("2024-06-01");
+    list.add("first dated", sameDueDate);
+    list.add("first undated");
+    list.add("second dated", sameDueDate);
+    list.add("second undated");
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([
+      "first dated",
+      "second dated",
+      "first undated",
+      "second undated",
+    ]);
+  });
+
+  it("orders within a filter rather than replacing it", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2024-06-15"));
+    list.add("buy bread", new Date("2024-06-01"));
+    list.complete(milk.id);
+
+    expect(list.list("completed", "dueDate").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("answers a listing asked for with no order in the order todos were added", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2024-06-15"));
+    list.add("soonest", new Date("2024-06-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["later", "soonest"]);
+  });
+});
+
 describe("listing overdue todos", () => {
   it("answers a dated, open todo due before the clock's now", () => {
     const now = new Date("2024-06-15");

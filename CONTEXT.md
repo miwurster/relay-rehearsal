@@ -36,6 +36,11 @@ _Avoid_: store, repository, collection, database.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
 
+**Due-date order**: a **listing** with its dated todos soonest **due date** first and every **undated** todo after all of them.
+Todos sharing a due date, and the undated ones among themselves, keep **insertion order**.
+It can be asked for alongside any **filter**, ordering what the filter holds rather than replacing it.
+_Avoid_: sort order, chronological order.
+
 **Filter**: which **todo**s a **listing** asks for: `all`, `open`, or `completed`.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
