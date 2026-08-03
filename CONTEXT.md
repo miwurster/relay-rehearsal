@@ -20,6 +20,14 @@ _Avoid_: name, description, label.
 A todo is **open** until it is completed, and completing one is reversible — reopening it is ordinary, not a correction.
 _Avoid_: status, state, done flag.
 
+**Due date**: the point in time a **todo** is meant to be done by, set only when it is added.
+A due date in the past is accepted, not an error, and renaming, completing and reopening a **todo** leave it as it was.
+A due date that is not a usable point in time is refused with `InvalidDueDateError`.
+_Avoid_: deadline, target date, expiry.
+
+**Undated**: a **todo** added without a **due date** — a state of its own, not a date waiting to be supplied.
+_Avoid_: no date, null date, pending date.
+
 **Todo list**: the whole collection, and the only thing that creates a **todo** or changes one.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
