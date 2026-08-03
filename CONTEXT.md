@@ -45,8 +45,10 @@ _Avoid_: deadline, target date, expiry.
 _Avoid_: no due date, null date, missing date.
 
 **Overdue**: a **todo** that is dated, still **open**, and whose **due date** is before the **clock**'s now.
-A todo due exactly at now is not overdue yet, and a completed or **undated** todo is never overdue.
+A todo due exactly at now is not overdue yet.
+A completed or **undated** todo is never overdue.
 _Avoid_: late, past due, expired.
 
-**Clock**: what "now" means to the **todo list**, given at construction or defaulting to the real one.
+**Clock**: what "now" means to the **todo list**.
+It is given at construction or defaults to the real one.
 _Avoid_: time source, now function, timer.

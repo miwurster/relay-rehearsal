@@ -296,8 +296,9 @@ describe("the overdue todos", () => {
 
   it("is measured against the real clock when none is supplied", () => {
     const list = new TodoList();
-    list.add("buy milk", new Date("2000-01-01"));
+    list.add("past", new Date(Date.now() - 1000));
+    list.add("future", new Date(Date.now() + 60_000));
 
-    expect(list.overdue().map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["past"]);
   });
 });
