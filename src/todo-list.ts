@@ -50,8 +50,8 @@ export class TodoList {
   }
 
   /** The todos the filter asks for whose title contains the text, case-folded and trimmed. */
-  search(query: string, filter: TodoFilter = "all"): Todo[] {
-    const needle = query.trim().toLowerCase();
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const needle = text.trim().toLowerCase();
     if (needle === "") return [];
     return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(needle));
   }

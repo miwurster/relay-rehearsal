@@ -206,6 +206,13 @@ describe("searching todos", () => {
     expect(list.search("   ")).toEqual([]);
   });
 
+  it("answers an empty listing for text that matches no todo", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.search("bread")).toEqual([]);
+  });
+
   it("matches anywhere in the title, not only at its start", () => {
     const list = new TodoList();
     list.add("buy oat milk");
@@ -221,6 +228,7 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
   });
 
   it("answers in insertion order", () => {
