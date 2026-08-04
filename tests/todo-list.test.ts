@@ -163,6 +163,18 @@ describe("completing and reopening a todo", () => {
     expect(added.dueDate).toEqual(dueDate);
   });
 
+  it("does not let a caller mutating their own due date change the stored todo", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-10");
+    const original = new Date(dueDate.getTime());
+
+    const added = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2099);
+
+    expect(added.dueDate).toEqual(original);
+    expect(list.get(added.id).dueDate).toEqual(original);
+  });
+
   it("refuses an id the list does not hold", () => {
     const list = new TodoList();
 
