@@ -297,6 +297,17 @@ describe("listing todos in due-date order", () => {
     expect(list.list("open", "dueDate").map((todo) => todo.id)).toEqual([soonest.id, later.id]);
   });
 
+  it("orders the completed filter by due date too", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-08-20"));
+    const soonest = list.add("soonest", new Date("2026-08-01"));
+    list.add("open", new Date("2026-08-01"));
+    list.complete(later.id);
+    list.complete(soonest.id);
+
+    expect(list.list("completed", "dueDate").map((todo) => todo.id)).toEqual([soonest.id, later.id]);
+  });
+
   it("leaves a listing asked for with no order in the order todos were added", () => {
     const list = new TodoList();
     const later = list.add("later", new Date("2026-08-20"));

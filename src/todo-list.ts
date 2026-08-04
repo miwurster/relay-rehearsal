@@ -13,8 +13,8 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is what `list` returns unless it is asked for another
+ * order, and adding never reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -59,7 +59,8 @@ export class TodoList {
   /** The todos the filter asks for, in the order asked for. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const filtered = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return order === "dueDate" ? filtered.sort(compareByDueDate).map(cloneTodo) : filtered.map(cloneTodo);
+    if (order === "dueDate") filtered.sort(compareByDueDate);
+    return filtered.map(cloneTodo);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
