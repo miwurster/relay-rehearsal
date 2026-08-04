@@ -28,7 +28,9 @@ Renaming, completing and reopening a **todo** all leave its due date as it was.
 _Avoid_: deadline, due, target date.
 
 **Overdue**: a **todo** that is dated, open, and due before now.
-A **todo** due exactly now is not overdue yet, a completed **todo** is never overdue, and an undated **todo** is never overdue.
+A **todo** due exactly now is not overdue yet.
+A completed **todo** is never overdue.
+An undated **todo** is never overdue.
 _Avoid_: late, past due.
 
 **Todo list**: the whole collection, and the only thing that creates a **todo** or changes one.
@@ -44,7 +46,8 @@ A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
 **Clock**: what the **todo list** reads now from, to decide what is **overdue**.
-A **todo list** built without one reads the real clock; one built with a clock is measured against that instead, which is what lets a test pin now rather than sleeping or drifting with the calendar.
+A **todo list** built without one reads the real clock.
+One built with a clock is measured against that instead.
 _Avoid_: time source, now function.
 
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
