@@ -4,6 +4,9 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** Where the list reads "now" from. */
+export type Clock = () => Date;
+
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
@@ -12,6 +15,11 @@ export type TodoFilter = "all" | "open" | "completed";
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
+  private readonly clock: Clock;
+
+  constructor(clock: Clock = () => new Date()) {
+    this.clock = clock;
+  }
 
   /** Add a todo with the given title, and answer the todo that was added. */
   add(title: string, dueDate?: Date): Todo {
@@ -48,6 +56,12 @@ export class TodoList {
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
     return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+  }
+
+  /** The dated, open todos due before now, in the order they were added. */
+  overdue(): Todo[] {
+    const now = this.clock();
+    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
   }
 
   private replace(todo: Todo): Todo {
@@ -88,4 +102,8 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
+}
+
+function isOverdue(todo: Todo, now: Date): boolean {
+  return !todo.completed && todo.dueDate !== undefined && todo.dueDate.getTime() < now.getTime();
 }
