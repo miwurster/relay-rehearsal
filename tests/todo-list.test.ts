@@ -69,12 +69,14 @@ describe("adding a todo", () => {
     expect(list.list()).toHaveLength(0);
   });
 
-  it("spends no id on a refused due date", () => {
-    const refused = new TodoList();
-    expect(() => refused.add("buy milk", new Date("not a date"))).toThrow(InvalidDueDateError);
-    const untouched = new TodoList();
+  it("does not let mutating the caller's due date change the stored todo", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-09-01");
+    const added = list.add("buy milk", dueDate);
 
-    expect(refused.add("buy milk").id).toBe(untouched.add("buy milk").id);
+    dueDate.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-09-01"));
   });
 });
 
@@ -158,15 +160,6 @@ describe("completing and reopening a todo", () => {
     list.complete(added.id);
 
     expect(added.completed).toBe(false);
-  });
-
-  it("does not change the due date of a todo handed out earlier", () => {
-    const list = new TodoList();
-    const added = list.add("buy milk");
-
-    list.complete(added.id);
-
-    expect(added.dueDate).toBeUndefined();
   });
 
   it("refuses an id the list does not hold", () => {

@@ -19,14 +19,14 @@ export class TodoList {
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: acceptedTitle, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return expose(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return expose(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -47,12 +47,12 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(expose);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return expose(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -70,7 +70,12 @@ function requireTitle(title: string): string {
 function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (dueDate === undefined) return undefined;
   if (Number.isNaN(dueDate.getTime())) throw new InvalidDueDateError("A due date must be a usable point in time.");
-  return dueDate;
+  return new Date(dueDate.getTime());
+}
+
+/** A copy of the todo safe to hand to a caller: its due date is its own instance, not the list's. */
+function expose(todo: Todo): Todo {
+  return todo.dueDate === undefined ? todo : { ...todo, dueDate: new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
