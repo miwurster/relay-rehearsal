@@ -161,7 +161,7 @@ describe("adding a todo after removing one", () => {
     const f = list.add("f");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
-    expect(new Set([c.id, e.id, f.id]).size).toBe(3);
+    expect(new Set([a.id, b.id, d.id, c.id, e.id, f.id]).size).toBe(6);
   });
 
   it("works after removing every todo and adding again", () => {
