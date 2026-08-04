@@ -49,6 +49,13 @@ export class TodoList {
     return [...this.todos.values()].filter((todo) => matches(todo, filter));
   }
 
+  /** The todos the filter asks for whose title contains the text, in the order they were added. */
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const term = text.trim().toLowerCase();
+    if (term === "") return [];
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(term));
+  }
+
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return todo;
