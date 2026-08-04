@@ -43,7 +43,8 @@ _Avoid_: natural order, default order.
 
 **Due-date order**: a **listing** sorted by **due date**, soonest first.
 Every undated **todo** comes after every dated one.
-Todos sharing a due date, and the undated ones among themselves, keep **insertion order**.
+Todos sharing a due date keep **insertion order**.
+The undated ones keep **insertion order** among themselves too.
 _Avoid_: sort order, date order.
 
 **Filter**: which **todo**s a **listing** asks for: `all`, `open`, `completed`, or `overdue`.
