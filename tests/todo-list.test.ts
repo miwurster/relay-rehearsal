@@ -238,10 +238,10 @@ describe("searching todos", () => {
     const list = new TodoList();
     list.add("buy milk");
 
-    const results = list.search("milk");
+    const listing = list.search("milk");
     list.add("buy more milk");
 
-    expect(results).toHaveLength(1);
+    expect(listing).toHaveLength(1);
   });
 
   it("answers an empty listing when nothing matches", () => {
@@ -249,5 +249,16 @@ describe("searching todos", () => {
     list.add("buy milk");
 
     expect(list.search("bread")).toEqual([]);
+  });
+
+  it("leaves the list unchanged", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
   });
 });
