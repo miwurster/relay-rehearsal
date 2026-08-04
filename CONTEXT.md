@@ -32,6 +32,13 @@ _Avoid_: natural order, default order.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
+**Due date**: when a **todo** is meant to be done, set only when it is added and kept as it was through renaming, completing and reopening.
+A due date in the past is ordinary, not an error; one that is not a usable point in time is refused with `InvalidDueDateError`.
+_Avoid_: deadline, target date, expiry.
+
+**Undated**: a **todo** added without a **due date** — a state of its own, not a date waiting to be supplied.
+_Avoid_: no date, null date, dateless.
+
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
