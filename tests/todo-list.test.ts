@@ -249,3 +249,58 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("counts a dated, open todo due before the clock's now as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-15"));
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([todo.id]);
+  });
+
+  it("does not count a dated, open todo due after the clock's now as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-01"));
+    list.add("buy milk", new Date("2026-01-15"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a todo due at exactly the clock's now as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-01-15"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a completed todo with a long-past due date as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-15"));
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count an undated todo as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-15"));
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const list = new TodoList(() => new Date("2026-01-15"));
+    list.add("not overdue", new Date("2026-02-01"));
+    const first = list.add("first overdue", new Date("2026-01-01"));
+    const second = list.add("second overdue", new Date("2026-01-02"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([first.id, second.id]);
+  });
+
+  it("measures a list constructed with no clock against the real one", () => {
+    const list = new TodoList();
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([todo.id]);
+  });
+});
