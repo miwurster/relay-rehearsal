@@ -301,3 +301,56 @@ describe("listing overdue todos", () => {
     expect(list.list("overdue").map((todo) => todo.title)).toEqual(["long overdue"]);
   });
 });
+
+describe("listing in due-date order", () => {
+  it("answers dated todos soonest due date first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("second", new Date("2026-06-02"));
+    list.add("first", new Date("2026-06-01"));
+    list.add("third", new Date("2026-06-03"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second", "third"]);
+  });
+
+  it("puts every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated");
+    list.add("dated", new Date("2026-06-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["dated", "undated"]);
+  });
+
+  it("keeps insertion order among todos sharing a due date, and among the undated ones", () => {
+    const list = new TodoList();
+    const sameDueDate = new Date("2026-06-01");
+    list.add("first undated");
+    list.add("first dated", sameDueDate);
+    list.add("second dated", sameDueDate);
+    list.add("second undated");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual([
+      "first dated",
+      "second dated",
+      "first undated",
+      "second undated",
+    ]);
+  });
+
+  it("can be asked of a filter other than all", () => {
+    const list = new TodoList();
+    list.add("second open", new Date("2026-06-02"));
+    const completed = list.add("completed", new Date("2026-06-01"));
+    list.add("first open", new Date("2026-06-01"));
+    list.complete(completed.id);
+
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["first open", "second open"]);
+  });
+
+  it("leaves a listing asked for with no order in insertion order", () => {
+    const list = new TodoList();
+    list.add("second", new Date("2026-06-01"));
+    list.add("first", new Date("2026-06-02"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "first"]);
+  });
+});
