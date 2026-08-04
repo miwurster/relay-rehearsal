@@ -37,5 +37,5 @@ Holding a listing does not hold the list: a later add does not appear in a listi
 _Avoid_: view, snapshot, result set.
 
 **Search**: asking the **todo list** for the todos whose **title** contains some text, within any **filter**.
-Both the text and the title are trimmed and folded to the same case before matching, and text that is empty once trimmed matches nothing.
+The text is trimmed, and both the text and the title are folded to the same case before matching; text that is empty once trimmed matches nothing.
 _Avoid_: query, lookup, find.
