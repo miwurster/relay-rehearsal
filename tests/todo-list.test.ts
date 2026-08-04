@@ -206,6 +206,25 @@ describe("searching todos", () => {
     expect(list.search("   ")).toEqual([]);
   });
 
+  it("answers nothing when the text matches no title", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.search("cheese")).toEqual([]);
+  });
+
+  it("leaves the list unchanged", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    const before = list.list();
+
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
+  });
+
   it("searches within a filter", () => {
     const list = new TodoList();
     const milk = list.add("buy milk");
@@ -214,6 +233,7 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
   });
 
   it("answers matches in the order they were added", () => {
