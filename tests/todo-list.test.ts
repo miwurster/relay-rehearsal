@@ -78,6 +78,15 @@ describe("adding a todo", () => {
 
     expect(list.get(added.id).dueDate).toEqual(new Date("2026-09-01"));
   });
+
+  it("does not let mutating a returned todo's due date change the stored todo", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk", new Date("2026-09-01"));
+
+    added.dueDate?.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-09-01"));
+  });
 });
 
 describe("reading a todo", () => {
@@ -299,6 +308,15 @@ describe("listing overdue todos", () => {
     list.add("far future", new Date("2999-01-01"));
 
     expect(list.list("overdue").map((todo) => todo.title)).toEqual(["long overdue"]);
+  });
+
+  it("can be asked for in due-date order", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(() => now);
+    list.add("second", new Date("2026-06-02"));
+    list.add("first", new Date("2026-06-01"));
+
+    expect(list.list("overdue", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
   });
 });
 

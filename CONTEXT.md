@@ -21,11 +21,14 @@ A todo is **open** until it is completed, and completing one is reversible — r
 _Avoid_: status, state, done flag.
 
 **Due date**: the point in time a **todo** is meant to be done by, set only when it is added.
-A due date is optional: a **todo** added without one is **undated**, a state of its own rather than a date waiting to be supplied.
+A due date is optional: a **todo** added without one is **undated**.
 A due date in the past is ordinary, not an error.
 One that is not a usable point in time is refused with `InvalidDueDateError`.
 Renaming, completing and reopening a **todo** all leave its due date as it was.
 _Avoid_: deadline, due, target date.
+
+**Undated**: a **todo** added without a **due date**, a state of its own rather than a date waiting to be supplied.
+_Avoid_: no due date, missing date, null date.
 
 **Overdue**: a **todo** that is dated, open, and due before now.
 A **todo** due exactly now is not overdue yet.
