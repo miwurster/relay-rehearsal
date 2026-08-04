@@ -131,8 +131,25 @@ describe("removing a todo", () => {
     const fourth = list.add("fourth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(fourth.id).not.toBe(first.id);
     expect(fourth.id).not.toBe(second.id);
     expect(fourth.id).not.toBe(third.id);
+  });
+
+  it("empties the list when every todo is removed, and adds again cleanly", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    expect(list.list()).toHaveLength(0);
+
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
   });
 
   it("keeps every todo in place through many interleaved removes and adds", () => {
