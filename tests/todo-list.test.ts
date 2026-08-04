@@ -130,9 +130,10 @@ describe("removing then adding a todo", () => {
     list.add("third");
 
     list.remove(first.id);
-    list.add("fourth");
+    const fourth = list.add("fourth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(fourth.id).not.toBe(first.id);
   });
 
   it("keeps every remaining todo through many interleaved removes and adds", () => {
