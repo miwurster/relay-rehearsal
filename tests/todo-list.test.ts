@@ -149,16 +149,26 @@ describe("completing and reopening a todo", () => {
     expect(added.completed).toBe(false);
   });
 
-  it("leaves the due date of the todo handed out earlier unchanged", () => {
+  it("does not change a stored due date when the caller mutates the Date they passed to add", () => {
     const list = new TodoList();
     const dueDate = new Date("2026-01-01");
     const added = list.add("buy milk", dueDate);
 
-    list.rename(added.id, "buy oat milk");
-    list.complete(added.id);
-    list.reopen(added.id);
+    dueDate.setFullYear(2030);
 
-    expect(added.dueDate).toEqual(dueDate);
+    expect(added.dueDate).toEqual(new Date("2026-01-01"));
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
+  it("does not change a stored due date when a caller mutates the Date handed out by get", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-03-01");
+    const added = list.add("buy milk", dueDate);
+
+    list.get(added.id).dueDate?.setMonth(0);
+
+    expect(added.dueDate).toEqual(new Date("2026-03-01"));
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-03-01"));
   });
 
   it("refuses an id the list does not hold", () => {
