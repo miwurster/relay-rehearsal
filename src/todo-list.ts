@@ -2,7 +2,10 @@ import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./erro
 import type { Todo, TodoId } from "./todo.js";
 
 /** Which todos a listing asks for. */
-export type TodoFilter = "all" | "open" | "completed";
+export type TodoFilter = "all" | "open" | "completed" | "overdue";
+
+/** Where the list reads "now" from. */
+export type Clock = () => Date;
 
 /**
  * A list of todos, held in memory, with ids it hands out itself.
@@ -12,6 +15,11 @@ export type TodoFilter = "all" | "open" | "completed";
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
+  private readonly clock: Clock;
+
+  constructor(clock: Clock = () => new Date()) {
+    this.clock = clock;
+  }
 
   /** Add a todo with the given title and, optionally, a due date, and answer the todo that was added. */
   add(title: string, dueDate?: Date): Todo {
@@ -47,7 +55,8 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(expose);
+    const now = this.clock();
+    return [...this.todos.values()].filter((todo) => matches(todo, filter, now)).map(expose);
   }
 
   private replace(todo: Todo): Todo {
@@ -82,8 +91,13 @@ function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
 }
 
-function matches(todo: Todo, filter: TodoFilter): boolean {
+function matches(todo: Todo, filter: TodoFilter, now: Date): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
-  return todo.completed;
+  if (filter === "completed") return todo.completed;
+  return isOverdue(todo, now);
+}
+
+function isOverdue(todo: Todo, now: Date): boolean {
+  return todo.dueDate !== undefined && !todo.completed && todo.dueDate.getTime() < now.getTime();
 }
