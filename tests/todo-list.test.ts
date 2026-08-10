@@ -295,9 +295,20 @@ describe("listing todos in due-date order", () => {
     const list = new TodoList();
     const milk = list.add("buy milk", new Date("2024-06-20"));
     const bread = list.add("buy bread", new Date("2024-06-10"));
-    list.complete(milk.id);
+    const eggs = list.add("buy eggs", new Date("2024-06-15"));
+    list.complete(eggs.id);
 
-    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([bread.id]);
+    expect(list.list("open", "due-date").map((todo) => todo.id)).toEqual([bread.id, milk.id]);
+  });
+
+  it("orders a completed filter in due-date order too", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2024-06-20"));
+    const bread = list.add("buy bread", new Date("2024-06-10"));
+    list.complete(milk.id);
+    list.complete(bread.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.id)).toEqual([bread.id, milk.id]);
   });
 
   it("answers todos in the order they were added when no order is asked for", () => {
