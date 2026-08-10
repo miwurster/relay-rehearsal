@@ -261,3 +261,58 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("holds a dated, open todo due before the injected clock's now", () => {
+    const list = new TodoList(() => new Date("2026-08-10"));
+    const milk = list.add("buy milk", new Date("2026-08-09"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([milk.id]);
+  });
+
+  it("does not hold a dated, open todo due after the injected clock's now", () => {
+    const list = new TodoList(() => new Date("2026-08-10"));
+    list.add("buy milk", new Date("2026-08-11"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not hold a todo due exactly at the injected clock's now", () => {
+    const now = new Date("2026-08-10");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-08-10"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not hold a completed todo with a long-past due date", () => {
+    const list = new TodoList(() => new Date("2026-08-10"));
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not hold an undated todo", () => {
+    const list = new TodoList(() => new Date("2026-08-10"));
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const list = new TodoList(() => new Date("2026-08-10"));
+    const bread = list.add("buy bread", new Date("2000-01-01"));
+    list.add("buy milk", new Date("2026-08-11"));
+    const eggs = list.add("buy eggs", new Date("2001-01-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([bread.id, eggs.id]);
+  });
+
+  it("measures against the real clock when constructed with no clock", () => {
+    const list = new TodoList();
+    list.add("buy milk", new Date("2000-01-01"));
+
+    expect(list.overdue()).toHaveLength(1);
+  });
+});
