@@ -19,8 +19,8 @@ export class TodoList {
    */
   add(title: string, dueDate?: Date): Todo {
     const accepted = requireTitle(title);
-    if (dueDate !== undefined) requireDueDate(dueDate);
-    const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate };
+    const acceptedDueDate = requireDueDate(dueDate);
+    const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
     return todo;
   }
@@ -70,11 +70,12 @@ function requireTitle(title: string): string {
   return trimmed;
 }
 
-function requireDueDate(dueDate: Date): Date {
+function requireDueDate(dueDate: Date | undefined): Date | undefined {
+  if (dueDate === undefined) return undefined;
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return new Date(dueDate.getTime());
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
