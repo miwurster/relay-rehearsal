@@ -120,6 +120,61 @@ describe("removing a todo", () => {
 
     expect(() => list.remove("nope")).toThrow(UnknownTodoError);
   });
+
+  it("does not make an add after it overwrite a todo still in the list", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    const fourth = list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(third.id)).toEqual(third);
+    expect(list.get(fourth.id).title).toBe("fourth");
+  });
+
+  it("never hands a later add the id of a todo it already removed", () => {
+    const list = new TodoList();
+    const removed: string[] = [];
+    for (let round = 0; round < 5; round++) {
+      const todo = list.add(`round ${round}`);
+      removed.push(todo.id);
+      list.remove(todo.id);
+    }
+
+    const survivor = list.add("survivor");
+
+    expect(removed).not.toContain(survivor.id);
+  });
+
+  it("keeps every remaining todo through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    const d = list.add("d");
+    list.remove(b.id);
+    const e = list.add("e");
+    list.remove(d.id);
+    const f = list.add("f");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
+    expect(new Set([c.id, e.id, f.id]).size).toBe(3);
+  });
+
+  it("mints a fresh id after every todo is removed and the list is reused", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.remove(first.id);
+
+    const second = list.add("second");
+
+    expect(second.id).not.toBe(first.id);
+    expect(list.list().map((todo) => todo.title)).toEqual(["second"]);
+  });
 });
 
 describe("listing todos", () => {
