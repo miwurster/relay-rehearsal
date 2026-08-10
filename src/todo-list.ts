@@ -13,8 +13,9 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added when another order is not asked for, and adding
+ * never reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -105,10 +106,10 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   return todo.completed;
 }
 
-/** The todos in the order asked for; a copy, so the caller's array can be sorted safely. */
+/** The todos in the order asked for. */
 function orderBy(todos: Todo[], order: TodoOrder): Todo[] {
   if (order === "insertion") return todos;
-  return [...todos].sort(byDueDate);
+  return todos.sort(byDueDate);
 }
 
 /** Soonest due date first; every undated todo after every dated one. */

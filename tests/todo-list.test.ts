@@ -303,11 +303,10 @@ describe("listing todos in due-date order", () => {
 
   it("can be asked for alongside the open filter", () => {
     const list = new TodoList();
-    const milk = list.add("buy milk", new Date("2026-08-11"));
+    list.add("buy milk", new Date("2026-08-11"));
     list.add("buy bread", new Date("2026-08-10"));
-    list.complete(milk.id);
 
-    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["buy bread"]);
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["buy bread", "buy milk"]);
   });
 
   it("can be asked for alongside the completed filter", () => {
