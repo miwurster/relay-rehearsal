@@ -8,7 +8,7 @@ It names only the terms this repo coins or overloads — terms carrying their or
 Every entry keeps one shape: the bold term and its definition on one line, each further fact on its own line, then an `_Avoid_:` line of the synonyms this repo does not use.
 Where a named error refuses a value, the entry names that error, as **Title** does.
 
-**Todo**: one thing somebody means to do, carrying an **id**, a **title** and its completion.
+**Todo**: one thing somebody means to do, carrying an **id**, a **title**, its completion, and its **due date**.
 A todo is read-only to callers: the **todo list** replaces it rather than mutating it, so a todo handed out earlier never changes underneath the code holding it.
 _Avoid_: task, item, entry.
 

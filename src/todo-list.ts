@@ -19,14 +19,14 @@ export class TodoList {
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return copyDueDate(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return copyDueDate(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -47,12 +47,12 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(copyDueDate);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return copyDueDate(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -72,7 +72,12 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return new Date(dueDate.getTime());
+}
+
+/** A copy of the todo with its own due date, so a caller mutating it cannot reach the list's copy. */
+function copyDueDate(todo: Todo): Todo {
+  return todo.dueDate === undefined ? todo : { ...todo, dueDate: new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
