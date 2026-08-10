@@ -262,6 +262,73 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("due last", new Date("2026-08-12"));
+    list.add("due first", new Date("2026-08-10"));
+    list.add("due second", new Date("2026-08-11"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual([
+      "due first",
+      "due second",
+      "due last",
+    ]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated");
+    list.add("dated", new Date("2026-08-10"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["dated", "undated"]);
+  });
+
+  it("keeps the order todos were added in among ones sharing a due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-08-10");
+    list.add("first", dueDate);
+    list.add("second", dueDate);
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("keeps the order they were added in among the undated todos", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("can be asked for alongside the open filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-08-11"));
+    list.add("buy bread", new Date("2026-08-10"));
+    list.complete(milk.id);
+
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["buy bread"]);
+  });
+
+  it("can be asked for alongside the completed filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-08-11"));
+    const bread = list.add("buy bread", new Date("2026-08-10"));
+    list.complete(milk.id);
+    list.complete(bread.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy bread", "buy milk"]);
+  });
+
+  it("leaves a listing asked for with no order in the order todos were added", () => {
+    const list = new TodoList();
+    list.add("due last", new Date("2026-08-12"));
+    list.add("due first", new Date("2026-08-10"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["due last", "due first"]);
+  });
+});
+
 describe("listing overdue todos", () => {
   it("holds a dated, open todo due before the injected clock's now", () => {
     const list = new TodoList(() => new Date("2026-08-10"));
