@@ -36,6 +36,7 @@ _Avoid_: query, selector, predicate.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 
-**Search**: a **listing** of the todos whose **title** contains some text, case-folded and trimmed on both sides.
-Text that is empty once trimmed matches nothing; a search composes with a **filter**, so either can be asked with the other.
+**Search**: a **listing** of the todos whose **title** contains some text, case-folded and with the text trimmed of surrounding whitespace.
+Text that is empty once trimmed matches nothing.
+A search composes with a **filter**, so either can be asked with the other.
 _Avoid_: query, lookup, match.

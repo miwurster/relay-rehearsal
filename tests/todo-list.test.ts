@@ -223,7 +223,7 @@ describe("searching todos", () => {
     expect(list.search("bread")).toEqual([]);
   });
 
-  it("answers matches in insertion order", () => {
+  it("answers the matching todos in insertion order", () => {
     const list = new TodoList();
     list.add("buy bread");
     list.add("buy milk");
@@ -246,18 +246,19 @@ describe("searching todos", () => {
     const list = new TodoList();
     list.add("buy milk");
 
-    const results = list.search("milk");
+    const listing = list.search("milk");
     list.add("buy more milk");
 
-    expect(results).toHaveLength(1);
+    expect(listing).toHaveLength(1);
   });
 
   it("changes nothing about the list", () => {
     const list = new TodoList();
     list.add("buy milk");
 
+    const before = list.list();
     list.search("milk");
 
-    expect(list.list()).toHaveLength(1);
+    expect(list.list()).toEqual(before);
   });
 });
