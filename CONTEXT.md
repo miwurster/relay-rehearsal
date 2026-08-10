@@ -50,5 +50,6 @@ A **todo list** constructed without one reads the real clock.
 _Avoid_: now function, time source.
 
 **Overdue**: a dated, open **todo** whose **due date** is before the **clock**'s now.
-A **todo** due exactly at now is not yet overdue, and a completed or **undated** todo is never overdue.
+A **todo** due exactly at now is not yet overdue.
+A completed or **undated** todo is never overdue.
 _Avoid_: late, past due.
