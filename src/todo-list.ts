@@ -31,15 +31,14 @@ export class TodoList {
     const accepted = requireTitle(title);
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
-    this.todos.set(todo.id, todo);
-    return todo;
+    return this.replace(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return copyOut(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -61,18 +60,19 @@ export class TodoList {
   /** The todos the filter asks for, in the order asked for. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const filtered = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return order === "due-date" ? filtered.sort(byDueDate) : filtered;
+    const ordered = order === "due-date" ? filtered.sort(byDueDate) : filtered;
+    return ordered.map(copyOut);
   }
 
   /** The open, dated todos due before the clock's now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now));
+    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(copyOut);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return copyOut(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -107,6 +107,11 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 
 function isDated(todo: Todo): todo is Todo & { dueDate: Date } {
   return todo.dueDate !== undefined;
+}
+
+/** A copy of the todo safe to hand to a caller, its due date copied so mutating it cannot reach the stored one. */
+function copyOut(todo: Todo): Todo {
+  return isDated(todo) ? { ...todo, dueDate: new Date(todo.dueDate.getTime()) } : todo;
 }
 
 function isOverdue(todo: Todo, now: Date): boolean {

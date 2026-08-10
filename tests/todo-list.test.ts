@@ -82,6 +82,18 @@ describe("adding a todo with a due date", () => {
     expect(list.get(todo.id).dueDate).toEqual(new Date("2024-01-01"));
   });
 
+  it("does not gain or change a due date when a todo handed back out is mutated", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2024-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    added.dueDate!.setFullYear(2030);
+    list.get(added.id).dueDate!.setFullYear(1999);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2024-01-01"));
+    expect(list.list().map((todo) => todo.dueDate)).toEqual([new Date("2024-01-01")]);
+  });
+
   it("stays undated through renaming, completing and reopening", () => {
     const list = new TodoList();
     const added = list.add("buy milk");
@@ -370,6 +382,16 @@ describe("listing overdue todos", () => {
     const third = list.add("third", new Date("2024-06-02"));
 
     expect(list.overdue().map((todo) => todo.id)).toEqual([first.id, third.id]);
+  });
+
+  it("does not gain or change a due date when a todo handed back out by overdue is mutated", () => {
+    const now = new Date("2024-06-15");
+    const list = new TodoList(() => now);
+    const overdue = list.add("buy milk", new Date("2024-06-14"));
+
+    list.overdue().forEach((todo) => todo.dueDate!.setFullYear(1999));
+
+    expect(list.get(overdue.id).dueDate).toEqual(new Date("2024-06-14"));
   });
 
   it("measures a list constructed with no clock against the real one", () => {
