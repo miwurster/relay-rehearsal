@@ -302,9 +302,9 @@ describe("listing overdue todos", () => {
 
   it("answers overdue todos in the order they were added", () => {
     const list = new TodoList(() => new Date("2026-08-10"));
-    const bread = list.add("buy bread", new Date("2000-01-01"));
+    const bread = list.add("buy bread", new Date("2001-01-01"));
     list.add("buy milk", new Date("2026-08-11"));
-    const eggs = list.add("buy eggs", new Date("2001-01-01"));
+    const eggs = list.add("buy eggs", new Date("2000-01-01"));
 
     expect(list.overdue().map((todo) => todo.id)).toEqual([bread.id, eggs.id]);
   });
