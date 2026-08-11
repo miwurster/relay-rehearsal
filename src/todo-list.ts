@@ -37,14 +37,14 @@ export class TodoList {
       dueDate: acceptedDueDate,
     };
     this.todos.set(todo.id, todo);
-    return todo;
+    return exposeTodo(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return exposeTodo(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -66,18 +66,19 @@ export class TodoList {
   /** The todos the filter asks for, in the order asked for. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return order === "dueDate" ? matching.sort(compareByDueDate) : matching;
+    const ordered = order === "dueDate" ? matching.sort(compareByDueDate) : matching;
+    return ordered.map(exposeTodo);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now));
+    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(exposeTodo);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return exposeTodo(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -98,6 +99,11 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
   return new Date(dueDate.getTime());
+}
+
+/** A copy of the todo, its due date replaced rather than shared, safe to hand to a caller. */
+function exposeTodo(todo: Todo): Todo {
+  return { ...todo, dueDate: todo.dueDate === undefined ? undefined : new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

@@ -91,6 +91,15 @@ describe("reading a todo", () => {
 
     expect(() => list.get("nope")).toThrow(UnknownTodoError);
   });
+
+  it("does not let a caller's mutation of a returned due date reach the stored todo", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk", new Date("2026-01-01"));
+
+    added.dueDate?.setFullYear(2030);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
 });
 
 describe("renaming a todo", () => {
