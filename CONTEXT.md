@@ -37,10 +37,18 @@ _Avoid_: store, repository, collection, database.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
 
-**Filter**: which **todo**s a **listing** asks for: `all`, `open`, or `completed`.
+**Filter**: which **todo**s a **listing** asks for: `all`, `open`, `completed`, or `overdue`.
 A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Overdue**: a **todo** that is dated, open, and its **due date** falls before the **clock**'s now.
+A due date equal to now is not yet overdue, a completed todo is never overdue, and an undated todo is never overdue.
+_Avoid_: late, past due.
+
+**Clock**: what a **todo list** reads now from, to decide which todos are **overdue**.
+Supplied to the todo list's constructor; one constructed without a clock reads the real one.
+_Avoid_: time source, now function.
