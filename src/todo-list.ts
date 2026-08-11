@@ -59,7 +59,8 @@ export class TodoList {
   /** The todos the filter asks for, in the order asked for. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    return orderBy(matching, order).map(copyOf);
+    if (order === "due-date") matching.sort(byDueDate);
+    return matching.map(copyOf);
   }
 
   /** The open, dated todos due before now, in the order they were added. */
@@ -109,11 +110,6 @@ function copyOfDate(date: Date | undefined): Date | undefined {
 
 function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
-}
-
-function orderBy(todos: Todo[], order: TodoOrder): Todo[] {
-  if (order === "insertion") return todos;
-  return [...todos].sort(byDueDate);
 }
 
 function byDueDate(a: Todo, b: Todo): number {
