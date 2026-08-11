@@ -6,6 +6,9 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "due-date";
+
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
@@ -49,9 +52,11 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+  /** The todos the filter asks for, in the order they were added, or in due-date order if asked. */
+  list(filter: TodoFilter = "all", order?: TodoOrder): Todo[] {
+    const filtered = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    const ordered = order === "due-date" ? sortByDueDate(filtered) : filtered;
+    return ordered.map(cloneTodo);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -91,6 +96,16 @@ function cloneTodo(todo: Todo): Todo {
 
 function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
+}
+
+function sortByDueDate(todos: Todo[]): Todo[] {
+  return [...todos].sort(compareDueDate);
+}
+
+function compareDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === null) return b.dueDate === null ? 0 : 1;
+  if (b.dueDate === null) return -1;
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }
 
 function matches(todo: Todo, filter: TodoFilter): boolean {
