@@ -19,26 +19,24 @@ export class TodoList {
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: acceptedTitle, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return copyOf(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
-    const todo = this.todos.get(id);
-    if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return copyOf(this.stored(id));
   }
 
   rename(id: TodoId, title: string): Todo {
-    return this.replace({ ...this.get(id), title: requireTitle(title) });
+    return this.replace({ ...this.stored(id), title: requireTitle(title) });
   }
 
   complete(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: true });
+    return this.replace({ ...this.stored(id), completed: true });
   }
 
   reopen(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: false });
+    return this.replace({ ...this.stored(id), completed: false });
   }
 
   remove(id: TodoId): void {
@@ -47,12 +45,18 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(copyOf);
+  }
+
+  private stored(id: TodoId): Todo {
+    const todo = this.todos.get(id);
+    if (todo === undefined) throw unknownTodo(id);
+    return todo;
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return copyOf(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -72,7 +76,15 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return copyOfDate(dueDate);
+}
+
+function copyOf(todo: Todo): Todo {
+  return { ...todo, dueDate: copyOfDate(todo.dueDate) };
+}
+
+function copyOfDate(date: Date | undefined): Date | undefined {
+  return date === undefined ? undefined : new Date(date.getTime());
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

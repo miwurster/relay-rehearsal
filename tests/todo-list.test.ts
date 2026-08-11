@@ -68,6 +68,17 @@ describe("adding a todo", () => {
     expect(() => list.add("buy milk", new Date("not a date"))).toThrow(InvalidDueDateError);
     expect(list.list()).toHaveLength(0);
   });
+
+  it("does not gain or change a due date when the Date passed in or handed back is mutated", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2099);
+    todo.dueDate?.setFullYear(2099);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
 });
 
 describe("reading a todo", () => {
