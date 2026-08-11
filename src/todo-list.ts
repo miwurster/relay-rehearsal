@@ -50,14 +50,14 @@ export class TodoList {
   }
 
   /**
-   * The todos the filter asks for whose title contains the query, in the
+   * The todos the filter asks for whose title contains the text, in the
    * order they were added.
    *
-   * Matching ignores case and is trimmed the way a title is; a query that is
+   * Matching ignores case and is trimmed the way a title is; text that is
    * empty once trimmed matches nothing.
    */
-  search(query: string, filter: TodoFilter = "all"): Todo[] {
-    const trimmed = query.trim().toLowerCase();
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const trimmed = text.trim().toLowerCase();
     if (trimmed === "") return [];
     return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(trimmed));
   }

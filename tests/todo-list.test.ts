@@ -197,6 +197,7 @@ describe("searching todos", () => {
     list.add("Buy Milk");
 
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+    expect(list.search("MILK").map((todo) => todo.title)).toEqual(["Buy Milk"]);
   });
 
   it("trims the text searched for", () => {
