@@ -42,21 +42,19 @@ export class TodoList {
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
-    const todo = this.todos.get(id);
-    if (todo === undefined) throw unknownTodo(id);
-    return exposeTodo(todo);
+    return exposeTodo(this.lookup(id));
   }
 
   rename(id: TodoId, title: string): Todo {
-    return this.replace({ ...this.get(id), title: requireTitle(title) });
+    return this.replace({ ...this.lookup(id), title: requireTitle(title) });
   }
 
   complete(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: true });
+    return this.replace({ ...this.lookup(id), completed: true });
   }
 
   reopen(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: false });
+    return this.replace({ ...this.lookup(id), completed: false });
   }
 
   remove(id: TodoId): void {
@@ -74,6 +72,13 @@ export class TodoList {
   overdue(): Todo[] {
     const now = this.clock();
     return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(exposeTodo);
+  }
+
+  /** The stored todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
+  private lookup(id: TodoId): Todo {
+    const todo = this.todos.get(id);
+    if (todo === undefined) throw unknownTodo(id);
+    return todo;
   }
 
   private replace(todo: Todo): Todo {
