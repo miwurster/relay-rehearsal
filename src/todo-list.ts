@@ -4,14 +4,18 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "insertion" | "due-date";
+
 /** A source of the current time, for measuring what is overdue against. */
 export type Clock = () => Date;
 
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added unless asked for another order, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -52,9 +56,10 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(copyOf);
+  /** The todos the filter asks for, in the order asked for. */
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return orderBy(matching, order).map(copyOf);
   }
 
   /** The open, dated todos due before now, in the order they were added. */
@@ -104,6 +109,17 @@ function copyOfDate(date: Date | undefined): Date | undefined {
 
 function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
+}
+
+function orderBy(todos: Todo[], order: TodoOrder): Todo[] {
+  if (order === "insertion") return todos;
+  return [...todos].sort(byDueDate);
+}
+
+function byDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
+  if (b.dueDate === undefined) return -1;
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }
 
 function matches(todo: Todo, filter: TodoFilter): boolean {
