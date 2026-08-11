@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
 
@@ -260,5 +260,61 @@ describe("listing todos", () => {
     list.add("buy bread");
 
     expect(listing).toHaveLength(1);
+  });
+});
+
+describe("listing overdue todos", () => {
+  const now = new Date("2026-01-15T00:00:00Z");
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("answers a dated, open todo due before now, not one due after", () => {
+    const list = new TodoList(() => now);
+    list.add("late", new Date("2026-01-01T00:00:00Z"));
+    list.add("future", new Date("2026-02-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["late"]);
+  });
+
+  it("does not count a todo due exactly at now as overdue", () => {
+    const list = new TodoList(() => now);
+    list.add("on time", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a completed todo as overdue, however long past its due date", () => {
+    const list = new TodoList(() => now);
+    const added = list.add("long overdue", new Date("2000-01-01T00:00:00Z"));
+    list.complete(added.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count an undated todo as overdue", () => {
+    const list = new TodoList(() => now);
+    list.add("someday");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const list = new TodoList(() => now);
+    list.add("first", new Date("2000-01-01T00:00:00Z"));
+    list.add("not overdue", new Date("2026-02-01T00:00:00Z"));
+    list.add("second", new Date("2010-01-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("measures a list constructed with no clock against the real clock", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    const list = new TodoList();
+    list.add("late", new Date("2026-01-01T00:00:00Z"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["late"]);
   });
 });
