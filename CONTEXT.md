@@ -24,6 +24,16 @@ _Avoid_: status, state, done flag.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
+**Due date**: when a **todo** is meant to be done, given optionally when it is added.
+A due date in the past is accepted — a todo already late on it is ordinary, not an error.
+A due date that is not a usable point in time is refused with `InvalidDueDateError`.
+Renaming, completing and reopening a todo all leave its due date as it was.
+_Avoid_: deadline, target date, due.
+
+**Undated**: a **todo** added without a **due date**.
+Undated is a state of its own, not a date waiting to be supplied, and it is distinguishable from a todo carrying any date.
+_Avoid_: no due date, empty date, unset date.
+
 **Insertion order**: the order todos were added, and the order a **listing** comes back in when it is not asked for another.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
