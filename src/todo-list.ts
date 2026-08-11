@@ -12,8 +12,9 @@ export type TodoOrder = "due-date";
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added when it is not asked for another, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -55,7 +56,7 @@ export class TodoList {
   /** The todos the filter asks for, in the order they were added, or in due-date order if asked. */
   list(filter: TodoFilter = "all", order?: TodoOrder): Todo[] {
     const filtered = [...this.todos.values()].filter((todo) => matches(todo, filter));
-    const ordered = order === "due-date" ? sortByDueDate(filtered) : filtered;
+    const ordered = order === "due-date" ? [...filtered].sort(compareDueDate) : filtered;
     return ordered.map(cloneTodo);
   }
 
@@ -96,10 +97,6 @@ function cloneTodo(todo: Todo): Todo {
 
 function unknownTodo(id: TodoId): UnknownTodoError {
   return new UnknownTodoError(`This list holds no todo with id ${id}.`);
-}
-
-function sortByDueDate(todos: Todo[]): Todo[] {
-  return [...todos].sort(compareDueDate);
 }
 
 function compareDueDate(a: Todo, b: Todo): number {

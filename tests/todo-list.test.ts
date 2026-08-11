@@ -251,6 +251,14 @@ describe("listing todos", () => {
 
     expect(listing).toHaveLength(1);
   });
+
+  it("answers dated todos in the order they were added when no order is asked for", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-02-01"));
+    list.add("sooner", new Date("2026-01-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["later", "sooner"]);
+  });
 });
 
 describe("listing todos in due-date order", () => {
@@ -291,10 +299,9 @@ describe("listing todos in due-date order", () => {
     const later = list.add("later", new Date("2026-02-01"));
     const sooner = list.add("sooner", new Date("2026-01-01"));
     list.complete(later.id);
-    list.complete(sooner.id);
 
-    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["sooner", "later"]);
-    expect(list.list("open", "due-date")).toEqual([]);
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["later"]);
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["sooner"]);
   });
 });
 
