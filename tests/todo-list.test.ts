@@ -268,6 +268,59 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest due date first, whatever order they were added in", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-03-01"));
+    const sooner = list.add("sooner", new Date("2026-01-01"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([sooner.title, later.title]);
+  });
+
+  it("puts every undated todo after every dated one", () => {
+    const list = new TodoList();
+    const undated = list.add("undated");
+    const dated = list.add("dated", new Date("2026-01-01"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([dated.title, undated.title]);
+  });
+
+  it("keeps the add order among todos sharing a due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const first = list.add("first", dueDate);
+    const second = list.add("second", dueDate);
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([first.title, second.title]);
+  });
+
+  it("keeps the add order among undated todos", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual([first.title, second.title]);
+  });
+
+  it("orders the todos a filter holds without changing which ones it holds", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-03-01"));
+    const bread = list.add("buy bread", new Date("2026-01-01"));
+    list.complete(milk.id);
+    const eggs = list.add("buy eggs", new Date("2026-02-01"));
+
+    expect(list.list("open", "dueDate").map((todo) => todo.title)).toEqual([bread.title, eggs.title]);
+  });
+
+  it("leaves the order alone when no order is given, even though due dates would sort differently", () => {
+    const list = new TodoList();
+    const first = list.add("first", new Date("2026-06-01"));
+    const second = list.add("second", new Date("2026-01-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual([first.title, second.title]);
+  });
+});
+
 describe("listing overdue todos", () => {
   const now = new Date("2026-06-01T00:00:00Z");
   const clock: Clock = { now: () => now };
