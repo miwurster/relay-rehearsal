@@ -6,6 +6,9 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "insertion" | "dueDate";
+
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
@@ -58,9 +61,11 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(expose);
+  /** The todos the filter asks for, in the given order. */
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+    const todos = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    if (order === "dueDate") todos.sort(byDueDate);
+    return todos.map(expose);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -111,4 +116,11 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 
 function isOverdue(todo: Todo, now: Date): boolean {
   return todo.dueDate !== undefined && !todo.completed && todo.dueDate.getTime() < now.getTime();
+}
+
+/** Soonest due date first; undated after every dated todo; ties left as they were. */
+function byDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
+  if (b.dueDate === undefined) return -1;
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }
