@@ -4,7 +4,7 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
-/** The current time a todo list measures itself against. */
+/** The function a todo list asks for the current time. */
 export type Clock = () => Date;
 
 /**
@@ -15,12 +15,9 @@ export type Clock = () => Date;
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
-  private readonly clock: Clock;
 
   /** A list measured against the given clock, or the real clock if none is given. */
-  constructor(clock: Clock = () => new Date()) {
-    this.clock = clock;
-  }
+  constructor(private readonly clock: Clock = () => new Date()) {}
 
   /**
    * Add a todo with the given title and, optionally, a due date, and answer
