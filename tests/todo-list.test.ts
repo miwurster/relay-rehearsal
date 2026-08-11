@@ -3,14 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Clock } from "../src/index.js";
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
 
-class FixedClock implements Clock {
-  constructor(private readonly instant: Date) {}
-
-  now(): Date {
-    return this.instant;
-  }
-}
-
 describe("adding a todo", () => {
   it("adds it open, under a title trimmed of its whitespace", () => {
     const list = new TodoList();
@@ -278,28 +270,29 @@ describe("listing todos", () => {
 
 describe("listing overdue todos", () => {
   const now = new Date("2026-06-01T00:00:00Z");
+  const clock: Clock = { now: () => now };
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
   it("answers a dated, open todo due before now, and leaves out one due after it", () => {
-    const list = new TodoList(new FixedClock(now));
-    const late = list.add("renew passport", new Date("2026-05-01T00:00:00Z"));
+    const list = new TodoList(clock);
+    const overdue = list.add("renew passport", new Date("2026-05-01T00:00:00Z"));
     list.add("plan trip", new Date("2026-07-01T00:00:00Z"));
 
-    expect(list.list("overdue").map((todo) => todo.title)).toEqual([late.title]);
+    expect(list.list("overdue").map((todo) => todo.title)).toEqual([overdue.title]);
   });
 
   it("does not count a todo due exactly at now as overdue", () => {
-    const list = new TodoList(new FixedClock(now));
+    const list = new TodoList(clock);
     list.add("renew passport", now);
 
     expect(list.list("overdue")).toEqual([]);
   });
 
   it("does not count a completed todo, however long past its due date", () => {
-    const list = new TodoList(new FixedClock(now));
+    const list = new TodoList(clock);
     const passport = list.add("renew passport", new Date("2000-01-01"));
     list.complete(passport.id);
 
@@ -307,17 +300,17 @@ describe("listing overdue todos", () => {
   });
 
   it("does not count an undated todo", () => {
-    const list = new TodoList(new FixedClock(now));
+    const list = new TodoList(clock);
     list.add("buy milk");
 
     expect(list.list("overdue")).toEqual([]);
   });
 
   it("answers overdue todos in the order they were added", () => {
-    const list = new TodoList(new FixedClock(now));
-    const first = list.add("first", new Date("2000-01-01"));
+    const list = new TodoList(clock);
+    const first = list.add("first", new Date("2001-01-01"));
     list.add("undated");
-    const third = list.add("third", new Date("2001-01-01"));
+    const third = list.add("third", new Date("2000-01-01"));
 
     expect(list.list("overdue").map((todo) => todo.title)).toEqual([first.title, third.title]);
   });
@@ -326,9 +319,9 @@ describe("listing overdue todos", () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     const list = new TodoList();
-    const late = list.add("renew passport", new Date("2026-05-01T00:00:00Z"));
+    const overdue = list.add("renew passport", new Date("2026-05-01T00:00:00Z"));
     list.add("plan trip", new Date("2026-07-01T00:00:00Z"));
 
-    expect(list.list("overdue").map((todo) => todo.title)).toEqual([late.title]);
+    expect(list.list("overdue").map((todo) => todo.title)).toEqual([overdue.title]);
   });
 });

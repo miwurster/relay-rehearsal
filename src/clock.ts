@@ -1,4 +1,4 @@
-/** A source of "now", so a todo list's caller can supply their own for tests. */
+/** What a todo list reads now from, so its caller can supply their own for tests. */
 export interface Clock {
   now(): Date;
 }

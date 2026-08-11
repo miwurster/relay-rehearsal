@@ -46,9 +46,12 @@ Holding a listing does not hold the list: a later add does not appear in a listi
 _Avoid_: view, snapshot, result set.
 
 **Overdue**: a **todo** that is dated, open, and its **due date** falls before the **clock**'s now.
-A due date equal to now is not yet overdue, a completed todo is never overdue, and an undated todo is never overdue.
+A due date equal to now is not yet overdue.
+A completed todo is never overdue.
+An undated todo is never overdue.
 _Avoid_: late, past due.
 
 **Clock**: what a **todo list** reads now from, to decide which todos are **overdue**.
-Supplied to the todo list's constructor; one constructed without a clock reads the real one.
+Supplied to the todo list's constructor.
+One constructed without a clock reads the real one.
 _Avoid_: time source, now function.
