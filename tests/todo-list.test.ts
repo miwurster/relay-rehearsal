@@ -174,9 +174,10 @@ describe("completing and reopening a todo", () => {
     const dueDate = new Date("2026-01-01");
     const added = list.add("buy milk", dueDate);
 
+    dueDate.setFullYear(2030);
     list.complete(added.id);
 
-    expect(added.dueDate).toEqual(dueDate);
+    expect(added.dueDate).toEqual(new Date("2026-01-01"));
   });
 
   it("refuses an id the list does not hold", () => {
