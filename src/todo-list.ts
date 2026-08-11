@@ -1,5 +1,3 @@
-import { systemClock } from "./clock.js";
-import type { Clock } from "./clock.js";
 import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./errors.js";
 import type { Todo, TodoId } from "./todo.js";
 
@@ -8,6 +6,16 @@ export type TodoFilter = "all" | "open" | "completed";
 
 /** What order a listing comes back in. */
 export type TodoOrder = "insertion" | "dueDate";
+
+/** A source of "now", so a todo list can be measured against a time other than the real one. */
+export interface Clock {
+  now(): Date;
+}
+
+/** The clock a todo list reads when none is supplied: the real one. */
+export const systemClock: Clock = {
+  now: () => new Date(),
+};
 
 /**
  * A list of todos, held in memory, with ids it hands out itself.
