@@ -147,8 +147,10 @@ describe("adding a todo after removing one", () => {
     list.remove(d.id);
     const f = list.add("f");
 
+    const removedIds = [a.id, b.id, d.id];
     const ids = [c.id, e.id, f.id];
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.some((id) => removedIds.includes(id))).toBe(false);
     expect(list.list()).toEqual([c, e, f]);
   });
 });
