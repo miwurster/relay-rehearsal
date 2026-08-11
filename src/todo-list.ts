@@ -12,6 +12,7 @@ export type TodoFilter = "all" | "open" | "completed";
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
+  private mintedIds = 0;
 
   /** Add a todo with the given title, and answer the todo that was added. */
   add(title: string): Todo {
@@ -54,9 +55,10 @@ export class TodoList {
     return todo;
   }
 
-  /** The next unused id. Only a todo that is about to be added takes one. */
+  /** The next unused id. Only a todo that is about to be added takes one, and no id is ever handed out twice. */
   private mintId(): TodoId {
-    return String(this.todos.size + 1);
+    this.mintedIds += 1;
+    return String(this.mintedIds);
   }
 }
 
