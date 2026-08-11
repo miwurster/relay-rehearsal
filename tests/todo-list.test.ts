@@ -313,10 +313,11 @@ describe("listing todos in due-date order", () => {
     const soonest = list.add("soonest", new Date("2026-01-01"));
     list.complete(later.id);
     list.complete(soonest.id);
+    const openSoonest = list.add("open soonest", new Date("2026-01-15"));
     const open = list.add("open", new Date("2026-02-01"));
 
     expect(list.list("completed", "dueDate").map((todo) => todo.id)).toEqual([soonest.id, later.id]);
-    expect(list.list("open", "dueDate").map((todo) => todo.id)).toEqual([open.id]);
+    expect(list.list("open", "dueDate").map((todo) => todo.id)).toEqual([openSoonest.id, open.id]);
   });
 
   it("answers todos in the order they were added when asked with no order", () => {
