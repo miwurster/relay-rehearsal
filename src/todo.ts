@@ -11,4 +11,6 @@ export interface Todo {
   readonly id: TodoId;
   readonly title: string;
   readonly completed: boolean;
+  /** When the todo is due, or `undefined` if it is undated. */
+  readonly dueDate: Date | undefined;
 }
