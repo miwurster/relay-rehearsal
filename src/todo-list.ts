@@ -14,11 +14,8 @@ export type TodoFilter = "all" | "open" | "completed";
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
-  private readonly clock: Clock;
 
-  constructor(clock: Clock = systemClock) {
-    this.clock = clock;
-  }
+  constructor(private readonly clock: Clock = systemClock) {}
 
   /** Add a todo with the given title and optional due date, and answer the todo that was added. */
   add(title: string, dueDate?: Date): Todo {
