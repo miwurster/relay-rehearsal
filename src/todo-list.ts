@@ -28,14 +28,14 @@ export class TodoList {
       dueDate: acceptedDueDate,
     };
     this.todos.set(todo.id, todo);
-    return todo;
+    return this.present(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return this.present(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -56,12 +56,18 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map((todo) => this.present(todo));
   }
 
   private replace(todo: Todo): Todo {
-    this.todos.set(todo.id, todo);
-    return todo;
+    const stored = this.present(todo);
+    this.todos.set(stored.id, stored);
+    return this.present(stored);
+  }
+
+  /** A copy of the todo, with its own due date instance, safe to hand to a caller or store. */
+  private present(todo: Todo): Todo {
+    return { ...todo, dueDate: cloneDueDate(todo.dueDate) };
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -81,7 +87,11 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
   if (Number.isNaN(dueDate.getTime())) {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
-  return dueDate;
+  return cloneDueDate(dueDate);
+}
+
+function cloneDueDate(dueDate: Date | undefined): Date | undefined {
+  return dueDate === undefined ? undefined : new Date(dueDate.getTime());
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {

@@ -45,7 +45,17 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(dueDate);
   });
 
-  it("adds it undated when no due date is given", () => {
+  it("does not move the stored due date when the caller mutates the date they gave it", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const added = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2030);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
+  it("adds it undated when the due date is omitted", () => {
     const list = new TodoList();
 
     const todo = list.add("buy milk");
@@ -165,6 +175,17 @@ describe("completing and reopening a todo", () => {
     list.complete(added.id);
 
     expect(added.dueDate).toEqual(dueDate);
+  });
+
+  it("does not move the stored due date when the caller mutates a due date handed back to them", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    list.complete(added.id).dueDate?.setFullYear(2030);
+
+    expect(added.dueDate).toEqual(new Date("2026-01-01"));
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
   });
 
   it("refuses an id the list does not hold", () => {
