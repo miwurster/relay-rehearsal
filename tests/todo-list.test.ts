@@ -122,6 +122,74 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after a remove", () => {
+  it("leaves every remaining todo in place and adds exactly one, in order", () => {
+    const list = new TodoList();
+    list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+    list.remove(second.id);
+
+    const fourth = list.add("fourth");
+
+    expect(list.list()).toEqual([
+      { id: expect.any(String), title: "first", completed: false },
+      third,
+      { id: fourth.id, title: "fourth", completed: false },
+    ]);
+  });
+
+  it("hands out an id no todo in the list has ever carried", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+    expect(list.get(second.id)).toEqual(second);
+    expect(list.get(third.id)).toEqual(third);
+  });
+
+  it("keeps the list correct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const ids: string[] = [];
+
+    const a = list.add("a");
+    ids.push(a.id);
+    const b = list.add("b");
+    ids.push(b.id);
+    list.remove(a.id);
+    const c = list.add("c");
+    ids.push(c.id);
+    const d = list.add("d");
+    ids.push(d.id);
+    list.remove(c.id);
+    list.remove(b.id);
+    const e = list.add("e");
+    ids.push(e.id);
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["d", "e"]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("works after removing every todo and adding again", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(list.list()).toEqual([third]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
