@@ -33,6 +33,14 @@ _Avoid_: status, state, done flag.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
+**Clock**: what the **todo list** reads to learn what time it is, given at construction and defaulting to the real one.
+A **todo list** built with a clock is measured against that clock instead of the real one, which is what lets a test pin "now" rather than sleeping or drifting with the calendar.
+_Avoid_: now, time source.
+
+**Overdue**: the state of a **todo** that is dated, open, and due before the **clock**'s now.
+An **undated** todo is never overdue, and completing a todo ends its overdue state for good, however late it was.
+_Avoid_: late, past due.
+
 **Insertion order**: the order todos were added, and the order a **listing** comes back in when it is not asked for another.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
