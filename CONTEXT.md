@@ -39,7 +39,8 @@ Changing a **todo** does not move it: completing or renaming one leaves it where
 _Avoid_: natural order, default order.
 
 **Due-date order**: an order for a **listing**, soonest **due date** first, with every **undated** todo after every dated one.
-Todos sharing a due date keep their **insertion order** relative to each other, and so do the undated ones among themselves.
+Todos sharing a due date keep their **insertion order** relative to each other.
+So do the undated ones among themselves.
 _Avoid_: date order, deadline order.
 
 **Filter**: which **todo**s a **listing** asks for: `all`, `open`, or `completed`.
