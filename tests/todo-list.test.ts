@@ -296,12 +296,18 @@ describe("listing todos in due-date order", () => {
 
   it("orders the todos an open or completed filter holds, not just all of them", () => {
     const list = new TodoList();
-    const later = list.add("later", new Date("2026-02-01"));
-    const sooner = list.add("sooner", new Date("2026-01-01"));
-    list.complete(later.id);
+    list.add("open later", new Date("2026-02-01"));
+    list.add("open sooner", new Date("2026-01-01"));
+    const completedLater = list.add("completed later", new Date("2026-04-01"));
+    const completedSooner = list.add("completed sooner", new Date("2026-03-01"));
+    list.complete(completedLater.id);
+    list.complete(completedSooner.id);
 
-    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["later"]);
-    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["sooner"]);
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual([
+      "completed sooner",
+      "completed later",
+    ]);
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["open sooner", "open later"]);
   });
 });
 
