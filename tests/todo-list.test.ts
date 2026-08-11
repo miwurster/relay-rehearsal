@@ -122,6 +122,81 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("leaves every remaining todo in place", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    list.add("third");
+    list.remove(first.id);
+
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+  });
+
+  it("grows the listing by exactly one", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    list.remove(first.id);
+
+    list.add("third");
+
+    expect(list.list()).toHaveLength(2);
+  });
+
+  it("gives an id no todo in the list has ever held", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    const fourth = list.add("fourth");
+
+    expect([first.id, second.id, third.id]).not.toContain(fourth.id);
+  });
+
+  it("never hands a removed todo's id to another todo", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    list.remove(first.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(first.id);
+  });
+
+  it("stays correct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    list.remove(b.id);
+    list.add("d");
+    list.remove(c.id);
+    list.add("e");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["d", "e"]);
+  });
+
+  it("works after every todo has been removed and the list is reused", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect([first.id, second.id]).not.toContain(third.id);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
