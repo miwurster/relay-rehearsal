@@ -199,6 +199,20 @@ describe("searching todos", () => {
     expect(list.list("all", "milk")).toHaveLength(1);
   });
 
+  it("ignores case when the search text is upper-case", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.list("all", "MILK")).toHaveLength(1);
+  });
+
+  it("matches only the title, not the id", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk");
+
+    expect(list.list("all", added.id)).toEqual([]);
+  });
+
   it("trims the text searched for", () => {
     const list = new TodoList();
     list.add("buy milk");
