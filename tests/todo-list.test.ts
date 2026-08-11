@@ -169,6 +169,17 @@ describe("completing and reopening a todo", () => {
 
     expect(added.dueDate).toEqual(dueDate);
   });
+
+  it("does not change the stored due date when a caller mutates a due date they hold", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    dueDate.setFullYear(2099);
+    list.get(added.id).dueDate?.setFullYear(2099);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
 });
 
 describe("removing a todo", () => {
