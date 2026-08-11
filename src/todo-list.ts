@@ -49,6 +49,18 @@ export class TodoList {
     return [...this.todos.values()].filter((todo) => matches(todo, filter));
   }
 
+  /**
+   * The todos the filter asks for whose title contains the text, in the order they were added.
+   *
+   * The text is matched case-insensitively and trimmed of whitespace first; text that
+   * is empty once trimmed matches nothing.
+   */
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const needle = text.trim().toLowerCase();
+    if (needle === "") return [];
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(needle));
+  }
+
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return todo;
