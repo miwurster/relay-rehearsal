@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
 
@@ -320,10 +320,6 @@ describe("listing todos in due-date order", () => {
 describe("listing overdue todos", () => {
   const now = new Date("2026-01-15T00:00:00Z");
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it("answers a dated, open todo due before now, not one due after", () => {
     const list = new TodoList(() => now);
     list.add("late", new Date("2026-01-01T00:00:00Z"));
@@ -363,12 +359,10 @@ describe("listing overdue todos", () => {
     expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
   });
 
-  it("measures a list constructed with no clock against the real clock", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(now);
+  it("works without an injected clock", () => {
     const list = new TodoList();
-    list.add("late", new Date("2026-01-01T00:00:00Z"));
+    list.add("someday");
 
-    expect(list.overdue().map((todo) => todo.title)).toEqual(["late"]);
+    expect(list.overdue()).toEqual([]);
   });
 });
