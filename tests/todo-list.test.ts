@@ -123,30 +123,45 @@ describe("removing a todo", () => {
 });
 
 describe("adding a todo after removing one", () => {
-  it("does not overwrite a remaining todo (minimal case)", () => {
+  it("does not overwrite a remaining todo", () => {
     const list = new TodoList();
     const first = list.add("first");
-    list.add("second");
-    list.add("third");
+    const second = list.add("second");
+    const third = list.add("third");
 
     list.remove(first.id);
-    list.add("fourth");
+    const fourth = list.add("fourth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect([first.id, second.id, third.id]).not.toContain(fourth.id);
   });
 
   it("keeps every remaining todo through interleaved adds and removes", () => {
     const list = new TodoList();
     const a = list.add("a");
     const b = list.add("b");
-    const c = list.add("c");
+    list.add("c");
 
     list.remove(b.id);
-    list.add("d");
+    const d = list.add("d");
     list.remove(a.id);
-    list.add("e");
+    const e = list.add("e");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["c", "d", "e"]);
+    expect([a.id, b.id]).not.toContain(d.id);
+    expect([a.id, b.id]).not.toContain(e.id);
+  });
+
+  it("lists what was added after every todo was removed", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    list.remove(first.id);
+    list.remove(second.id);
+    list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
   });
 });
 
