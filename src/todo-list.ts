@@ -65,7 +65,7 @@ export class TodoList {
   /** The todos the filter asks for, in insertion order or due-date order. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
     const listed = [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
-    return order === "dueDate" ? sortByDueDate(listed) : listed;
+    return order === "dueDate" ? listed.sort(compareByDueDate) : listed;
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -117,13 +117,10 @@ function isOverdue(todo: Todo, now: Date): boolean {
   return !todo.completed && todo.dueDate !== undefined && todo.dueDate.getTime() < now.getTime();
 }
 
-function sortByDueDate(todos: Todo[]): Todo[] {
-  return [...todos].sort(compareByDueDate);
-}
-
 function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === undefined && b.dueDate === undefined) return 0;
-  if (a.dueDate === undefined) return 1;
-  if (b.dueDate === undefined) return -1;
-  return a.dueDate.getTime() - b.dueDate.getTime();
+  const aRank = a.dueDate?.getTime() ?? Infinity;
+  const bRank = b.dueDate?.getTime() ?? Infinity;
+  if (aRank < bRank) return -1;
+  if (aRank > bRank) return 1;
+  return 0;
 }
