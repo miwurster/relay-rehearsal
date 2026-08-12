@@ -110,11 +110,15 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 }
 
 function isOverdue(todo: Todo, now: Date): boolean {
-  return todo.dueDate !== undefined && !todo.completed && todo.dueDate < now;
+  return !isUndated(todo.dueDate) && !todo.completed && todo.dueDate < now;
+}
+
+function isUndated(dueDate: Date | undefined): dueDate is undefined {
+  return dueDate === undefined;
 }
 
 function compareByDueDate(a: Todo, b: Todo): number {
-  if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
-  if (b.dueDate === undefined) return -1;
+  if (isUndated(a.dueDate)) return isUndated(b.dueDate) ? 0 : 1;
+  if (isUndated(b.dueDate)) return -1;
   return a.dueDate.getTime() - b.dueDate.getTime();
 }
