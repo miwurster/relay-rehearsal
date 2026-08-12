@@ -44,9 +44,17 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+  /**
+   * The todos the filter asks for, in the order they were added.
+   *
+   * When `search` is given, only todos whose title contains it are included,
+   * case-insensitively and trimmed of surrounding whitespace. Text that is
+   * empty once trimmed matches nothing.
+   */
+  list(filter: TodoFilter = "all", search?: string): Todo[] {
+    return [...this.todos.values()].filter(
+      (todo) => matches(todo, filter) && matchesSearch(todo, search),
+    );
   }
 
   private replace(todo: Todo): Todo {
@@ -74,4 +82,11 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
+}
+
+function matchesSearch(todo: Todo, search: string | undefined): boolean {
+  if (search === undefined) return true;
+  const text = search.trim().toLowerCase();
+  if (text === "") return false;
+  return todo.title.toLowerCase().includes(text);
 }

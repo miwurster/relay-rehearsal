@@ -175,3 +175,82 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("searching todos", () => {
+  it("answers todos whose title contains the text, anywhere in the title", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    expect(list.list("all", "milk").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("ignores case, on both the todo's title and the text searched for", () => {
+    const list = new TodoList();
+    list.add("Buy Milk");
+
+    expect(list.list("all", "milk").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+  });
+
+  it("trims the text searched for", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.list("all", "  milk  ").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("matches nothing when the text is empty once trimmed", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.list("all", "   ")).toEqual([]);
+  });
+
+  it("answers an empty listing when nothing matches", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.list("all", "bread")).toEqual([]);
+  });
+
+  it("composes with a filter, searching only within it", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.list("open", "milk").map((todo) => todo.title)).toEqual(["buy oat milk"]);
+    expect(list.list("completed", "milk").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("answers matches in the order they were added", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+    list.add("buy oat milk");
+
+    expect(list.list("all", "milk").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
+  });
+
+  it("answers a listing that a later add does not reach", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    const listing = list.list("all", "milk");
+    list.add("buy more milk");
+
+    expect(listing).toHaveLength(1);
+  });
+
+  it("changes nothing about the list", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    list.list("all", "bread");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+});
