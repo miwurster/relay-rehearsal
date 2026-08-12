@@ -7,7 +7,7 @@ export interface Clock {
 }
 
 /** The clock a list reads when none is supplied. */
-export const REAL_CLOCK: Clock = { now: () => new Date() };
+const REAL_CLOCK: Clock = { now: () => new Date() };
 
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
