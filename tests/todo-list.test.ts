@@ -44,7 +44,7 @@ describe("adding a todo with a due date", () => {
 
     const todo = list.add("buy milk", dueDate);
 
-    expect(todo.dueDate).toBe(dueDate);
+    expect(todo.dueDate).toEqual(dueDate);
   });
 
   it("comes back undated when no due date is given", () => {
@@ -64,13 +64,32 @@ describe("adding a todo with a due date", () => {
     expect(undated.dueDate).not.toEqual(dated.dueDate);
   });
 
+  it("does not let a caller's later change to the due date reach the stored todo", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(1999);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
+  it("does not let a mutation of a handed-out due date reach the stored todo", () => {
+    const list = new TodoList();
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    todo.dueDate?.setFullYear(1999);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
   it("accepts a due date in the past", () => {
     const list = new TodoList();
     const pastDueDate = new Date("2000-01-01");
 
     const todo = list.add("buy milk", pastDueDate);
 
-    expect(todo.dueDate).toBe(pastDueDate);
+    expect(todo.dueDate).toEqual(pastDueDate);
   });
 
   it("refuses a due date that is not a usable point in time", () => {
@@ -122,7 +141,7 @@ describe("renaming a todo", () => {
 
     const renamed = list.rename(added.id, "buy oat milk");
 
-    expect(renamed.dueDate).toBe(dueDate);
+    expect(renamed.dueDate).toEqual(dueDate);
   });
 });
 
@@ -159,8 +178,8 @@ describe("completing and reopening a todo", () => {
     const completed = list.complete(added.id);
     const reopened = list.reopen(added.id);
 
-    expect(completed.dueDate).toBe(dueDate);
-    expect(reopened.dueDate).toBe(dueDate);
+    expect(completed.dueDate).toEqual(dueDate);
+    expect(reopened.dueDate).toEqual(dueDate);
   });
 
   it("leaves the due date of a todo handed out earlier unchanged", () => {
@@ -171,7 +190,7 @@ describe("completing and reopening a todo", () => {
     list.complete(added.id);
     list.rename(added.id, "buy oat milk");
 
-    expect(added.dueDate).toBe(dueDate);
+    expect(added.dueDate).toEqual(dueDate);
   });
 
   it("refuses an id the list does not hold", () => {
