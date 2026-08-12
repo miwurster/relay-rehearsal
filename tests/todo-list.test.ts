@@ -295,8 +295,8 @@ describe("listing overdue todos", () => {
 
   it("measures against the real clock when the list is constructed without one", () => {
     const list = new TodoList();
-    list.add("ancient", new Date("2000-01-01"));
-    list.add("distant future", new Date("3000-01-01"));
+    list.add("ancient", new Date(Date.now() - 60_000));
+    list.add("distant future", new Date(Date.now() + 60_000));
 
     expect(list.overdue().map((todo) => todo.title)).toEqual(["ancient"]);
   });
