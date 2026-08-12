@@ -77,7 +77,7 @@ export class TodoList {
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(cloneTodo);
+    return this.list("open").filter((todo) => todo.dueDate !== undefined && todo.dueDate.getTime() < now.getTime());
   }
 
   private replace(todo: Todo): Todo {
@@ -117,10 +117,6 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
   if (filter === "all") return true;
   if (filter === "open") return !todo.completed;
   return todo.completed;
-}
-
-function isOverdue(todo: Todo, now: Date): boolean {
-  return todo.dueDate !== undefined && !todo.completed && todo.dueDate.getTime() < now.getTime();
 }
 
 function byDueDate(a: Todo, b: Todo): number {
