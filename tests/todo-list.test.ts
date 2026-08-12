@@ -44,7 +44,7 @@ describe("adding a todo with a due date", () => {
 
     const todo = list.add("buy milk", dueDate);
 
-    expect(todo.dueDate).toBe(dueDate);
+    expect(todo.dueDate).toEqual(dueDate);
   });
 
   it("comes back undated when none is given", () => {
@@ -61,7 +61,7 @@ describe("adding a todo with a due date", () => {
 
     const todo = list.add("buy milk", pastDueDate);
 
-    expect(todo.dueDate).toBe(pastDueDate);
+    expect(todo.dueDate).toEqual(pastDueDate);
   });
 
   it("refuses a due date that is not a usable point in time, leaving the list unchanged", () => {
@@ -105,7 +105,7 @@ describe("renaming a todo", () => {
 
     const renamed = list.rename(added.id, "buy oat milk");
 
-    expect(renamed.dueDate).toBe(dueDate);
+    expect(renamed.dueDate).toEqual(dueDate);
   });
 
   it("refuses a title that is empty once trimmed", () => {
@@ -150,19 +150,19 @@ describe("completing and reopening a todo", () => {
     const completed = list.complete(added.id);
     const reopened = list.reopen(added.id);
 
-    expect(completed.dueDate).toBe(dueDate);
-    expect(reopened.dueDate).toBe(dueDate);
+    expect(completed.dueDate).toEqual(dueDate);
+    expect(reopened.dueDate).toEqual(dueDate);
   });
 
   it("does not gain or change a due date on the todo handed out earlier", () => {
     const list = new TodoList();
-    const added = list.add("buy milk");
+    const dueDate = new Date("2030-01-01");
+    const added = list.add("buy milk", dueDate);
 
-    list.rename(added.id, "buy oat milk");
-    list.complete(added.id);
-    list.reopen(added.id);
+    dueDate.setFullYear(1999);
+    added.dueDate?.setFullYear(1998);
 
-    expect(added.dueDate).toBeUndefined();
+    expect(list.get(added.id).dueDate).toEqual(new Date("2030-01-01"));
   });
 
   it("refuses an id the list does not hold", () => {
