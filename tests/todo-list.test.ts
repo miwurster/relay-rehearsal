@@ -120,6 +120,61 @@ describe("removing a todo", () => {
 
     expect(() => list.remove("nope")).toThrow(UnknownTodoError);
   });
+
+  it("does not let an add after a remove overwrite a remaining todo", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    const third = list.add("third");
+
+    list.remove(first.id);
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("never hands a removed todo's id to another todo", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
+
+  it("keeps the list correct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    const d = list.add("d");
+    list.remove(b.id);
+    list.remove(d.id);
+    const e = list.add("e");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e"]);
+    expect(list.get(c.id).title).toBe("c");
+    expect(list.get(e.id).title).toBe("e");
+  });
+
+  it("works after removing every todo and adding again", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
+  });
 });
 
 describe("listing todos", () => {
