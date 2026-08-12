@@ -221,6 +221,16 @@ describe("searching todos", () => {
     expect(list.search("bread")).toEqual([]);
   });
 
+  it("is read-only: list() answers the same todos after a search", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    list.search("milk");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["buy milk", "buy bread"]);
+  });
+
   it("composes with a filter", () => {
     const list = new TodoList();
     const milk = list.add("buy milk");
@@ -229,6 +239,10 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
   });
 
   it("answers matches in the order they were added", () => {

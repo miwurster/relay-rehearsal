@@ -33,7 +33,8 @@ A filter says what a listing holds, never what order it holds it in.
 _Avoid_: query, selector, predicate.
 
 **Search**: asking the **todo list** for the **todo**s whose **title** contains some text.
-The text and each title are case-folded and trimmed before matching; text that is empty once trimmed matches nothing.
+The text is case-folded and trimmed before matching, and text that is empty once trimmed matches nothing.
+Each title is case-folded before matching; titles are already trimmed, since every title is stored trimmed.
 A search composes with a **filter**: it runs within whichever todos the filter already holds.
 _Avoid_: query, filter (as a synonym for search).
 

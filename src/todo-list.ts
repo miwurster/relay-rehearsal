@@ -52,8 +52,9 @@ export class TodoList {
   /**
    * The todos the filter asks for whose title contains the text, in the order they were added.
    *
-   * The text and each title are case-folded and trimmed before matching; text that is
-   * empty once trimmed matches nothing.
+   * The text is case-folded and trimmed before matching, and text that is empty once
+   * trimmed matches nothing. Each title is case-folded before matching; titles are
+   * already trimmed, since every title is stored trimmed.
    */
   search(text: string, filter: TodoFilter = "all"): Todo[] {
     const needle = text.trim().toLowerCase();
