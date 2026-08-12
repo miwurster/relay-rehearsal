@@ -12,5 +12,5 @@ export interface Todo {
   readonly title: string;
   readonly completed: boolean;
   /** When the todo is due, or `undefined` if it is undated. */
-  readonly dueDate?: Date;
+  readonly dueDate: Date | undefined;
 }
