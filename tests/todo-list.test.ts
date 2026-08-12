@@ -289,6 +289,21 @@ describe("listing todos in due-date order", () => {
     expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["dated", "undated"]);
   });
 
+  it("puts every undated todo after every dated one, however they interleave on insertion", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2026-02-01"));
+    list.add("first undated");
+    list.add("sooner", new Date("2026-01-01"));
+    list.add("second undated");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual([
+      "sooner",
+      "later",
+      "first undated",
+      "second undated",
+    ]);
+  });
+
   it("keeps todos sharing a due date in the order they were added", () => {
     const list = new TodoList();
     const sameDueDate = new Date("2026-01-01");
