@@ -305,10 +305,11 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added, not due-date order", () => {
     const now = new Date("2026-01-15");
     const list = new TodoList(() => now);
-    const second = list.add("second", new Date("2026-01-02"));
-    const first = list.add("first", new Date("2026-01-01"));
+    const first = list.add("first", new Date("2026-01-05"));
+    const second = list.add("second", new Date("2026-01-01"));
+    const third = list.add("third", new Date("2026-01-03"));
 
-    expect(list.overdue().map((todo) => todo.id)).toEqual([second.id, first.id]);
+    expect(list.overdue().map((todo) => todo.id)).toEqual([first.id, second.id, third.id]);
   });
 
   it("measures against the real clock when none is supplied", () => {
