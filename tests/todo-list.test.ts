@@ -271,3 +271,66 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the supplied now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([todo.id]);
+  });
+
+  it("excludes a dated, open todo due after the supplied now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-02-01"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due exactly at the supplied now", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const second = list.add("second", new Date("2026-01-02"));
+    const first = list.add("first", new Date("2026-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([second.id, first.id]);
+  });
+
+  it("measures a list constructed with no clock against the real clock", () => {
+    const list = new TodoList();
+    const overdue = list.add("buy milk", new Date("2000-01-01"));
+    const notYetDue = list.add("buy bread", new Date("2999-01-01"));
+
+    const ids = list.overdue().map((t) => t.id);
+
+    expect(ids).toContain(overdue.id);
+    expect(ids).not.toContain(notYetDue.id);
+  });
+});
