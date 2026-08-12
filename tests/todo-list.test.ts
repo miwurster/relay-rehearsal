@@ -197,6 +197,7 @@ describe("searching todos", () => {
     list.add("Buy Milk");
 
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+    expect(list.search("MILK").map((todo) => todo.title)).toEqual(["Buy Milk"]);
   });
 
   it("trims the text searched for", () => {
@@ -218,6 +219,13 @@ describe("searching todos", () => {
     list.add("buy milk");
 
     expect(list.search("bread")).toEqual([]);
+  });
+
+  it("matches on the title alone, not on other fields such as the id", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk");
+
+    expect(list.search(added.id)).toEqual([]);
   });
 
   it("composes with the open filter", () => {
