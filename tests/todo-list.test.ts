@@ -66,6 +66,20 @@ describe("adding a todo", () => {
     expect(list.get(c.id).title).toBe("c");
     expect(list.get(e.id).title).toBe("e");
   });
+
+  it("holds exactly the todo added after emptying the list completely", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    list.remove(b.id);
+
+    const c = list.add("c");
+
+    expect(list.list()).toEqual([c]);
+    expect(c.id).not.toBe(a.id);
+    expect(c.id).not.toBe(b.id);
+  });
 });
 
 describe("reading a todo", () => {
