@@ -37,6 +37,6 @@ Holding a listing does not hold the list: a later add does not appear in a listi
 _Avoid_: view, snapshot, result set.
 
 **Search**: asking for the **listing** of todos whose **title** contains some text.
-The text is case-folded and trimmed the way a title is; text that is empty once trimmed matches nothing.
+The text is trimmed the way a title is and case-folded for matching; text that is empty once trimmed matches nothing.
 A search composes with a **filter**, running within whichever the listing already asks for.
 _Avoid_: query, lookup, find.
