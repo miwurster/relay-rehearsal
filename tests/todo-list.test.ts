@@ -244,6 +244,70 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2030-01-03"));
+    list.add("soonest", new Date("2030-01-01"));
+    list.add("middle", new Date("2030-01-02"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual(["soonest", "middle", "later"]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("undated");
+    list.add("dated", new Date("2030-01-01"));
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual(["dated", "undated"]);
+  });
+
+  it("keeps insertion order among todos sharing a due date", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2030-01-01");
+    list.add("first", dueDate);
+    list.add("second", dueDate);
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("keeps insertion order among the undated todos", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "dueDate").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("orders the open filter's todos by due date", () => {
+    const list = new TodoList();
+    list.add("later open", new Date("2030-01-02"));
+    const done = list.add("done", new Date("2030-01-01"));
+    list.add("sooner open", new Date("2030-01-01"));
+    list.complete(done.id);
+
+    expect(list.list("open", "dueDate").map((todo) => todo.title)).toEqual(["sooner open", "later open"]);
+  });
+
+  it("orders the completed filter's todos by due date", () => {
+    const list = new TodoList();
+    const laterDone = list.add("later done", new Date("2030-01-02"));
+    const soonerDone = list.add("sooner done", new Date("2030-01-01"));
+    list.complete(laterDone.id);
+    list.complete(soonerDone.id);
+
+    expect(list.list("completed", "dueDate").map((todo) => todo.title)).toEqual(["sooner done", "later done"]);
+  });
+
+  it("answers todos in insertion order when no order is given, even with due dates out of order", () => {
+    const list = new TodoList();
+    list.add("later", new Date("2030-01-02"));
+    list.add("sooner", new Date("2030-01-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["later", "sooner"]);
+  });
+});
+
 describe("listing overdue todos", () => {
   it("includes a dated, open todo due before the supplied now", () => {
     const now = new Date("2030-01-02");
