@@ -127,7 +127,7 @@ describe("adding a todo after removing one", () => {
     const list = new TodoList();
     list.add("first");
     const second = list.add("second");
-    const third = list.add("third");
+    list.add("third");
 
     list.remove(second.id);
     list.add("fourth");
