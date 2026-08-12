@@ -253,3 +253,51 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("answers a dated, open todo due before the clock's now, and excludes one due after it", () => {
+    const list = new TodoList(() => new Date("2026-06-15"));
+    const early = list.add("buy milk", new Date("2026-06-01"));
+    list.add("buy bread", new Date("2026-07-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([early.id]);
+  });
+
+  it("does not include a todo due exactly at the clock's now", () => {
+    const list = new TodoList(() => new Date("2026-06-15"));
+    list.add("buy milk", new Date("2026-06-15"));
+
+    expect(list.overdue()).toHaveLength(0);
+  });
+
+  it("does not include a completed todo with a long-past due date", () => {
+    const list = new TodoList(() => new Date("2026-06-15"));
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toHaveLength(0);
+  });
+
+  it("does not include an undated todo", () => {
+    const list = new TodoList(() => new Date("2026-06-15"));
+    list.add("buy milk");
+
+    expect(list.overdue()).toHaveLength(0);
+  });
+
+  it("answers overdue todos in the order they were added, not sorted by due date", () => {
+    const list = new TodoList(() => new Date("2026-06-15"));
+    list.add("first", new Date("2020-01-01"));
+    list.add("second", new Date("2010-01-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("measures against the real clock when the list is constructed without one", () => {
+    const list = new TodoList();
+    list.add("ancient", new Date("2000-01-01"));
+    list.add("distant future", new Date("3000-01-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["ancient"]);
+  });
+});

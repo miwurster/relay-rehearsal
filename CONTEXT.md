@@ -29,9 +29,18 @@ _Avoid_: deadline, target date.
 **Undated**: a **todo**'s state of carrying no **due date**, distinct from a due date waiting to be supplied.
 _Avoid_: no due date, missing due date, null.
 
+**Overdue**: a **todo** that is dated, open, and due before now.
+A todo due exactly at now is not overdue yet, a completed todo is never overdue, and an **undated** todo is never overdue.
+_Avoid_: late, past due.
+
 **Todo list**: the whole collection, and the only thing that creates a **todo** or changes one.
 It hands out the **id**s itself, so nothing outside it invents one.
+A **todo list** is measured against a **clock**, so what it counts as now is what the clock answers.
 _Avoid_: store, repository, collection, database.
+
+**Clock**: what a **todo list** asks for now, supplied to it when it is constructed.
+A **todo list** constructed without one reads the real clock; a test supplies one to pin now rather than sleeping or drifting with the calendar.
+_Avoid_: time source, now provider.
 
 **Insertion order**: the order todos were added, and the order a **listing** comes back in when it is not asked for another.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
