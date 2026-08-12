@@ -190,6 +190,7 @@ describe("searching todos", () => {
     list.add("Buy Milk");
 
     expect(list.search("milk").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+    expect(list.search("MILK").map((todo) => todo.title)).toEqual(["Buy Milk"]);
   });
 
   it("trims the text searched for", () => {
@@ -229,6 +230,18 @@ describe("searching todos", () => {
     list.complete(milk.id);
 
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("searches within both open and completed todos when asked for all", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
   });
 
   it("answers matches in the order they were added", () => {
