@@ -47,7 +47,7 @@ describe("due dates", () => {
     expect(todo.dueDate).toEqual(dueDate);
   });
 
-  it("comes back undated when no due date is given", () => {
+  it("comes back undated when it is added without one", () => {
     const list = new TodoList();
 
     const todo = list.add("buy milk");
@@ -104,12 +104,15 @@ describe("due dates", () => {
 
   it("does not change the due date of a todo handed to a caller earlier", () => {
     const list = new TodoList();
-    const added = list.add("buy milk");
+    const dueDate = new Date("2026-09-01");
+    const added = list.add("buy milk", dueDate);
 
-    list.rename(added.id, "buy oat milk");
+    dueDate.setFullYear(2030);
+    list.rename(added.id, "buy oat milk").dueDate?.setFullYear(2031);
     list.complete(added.id);
 
-    expect(added.dueDate).toBeNull();
+    expect(added.dueDate).toEqual(new Date("2026-09-01"));
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-09-01"));
   });
 });
 
