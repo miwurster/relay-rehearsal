@@ -286,26 +286,40 @@ describe("listing todos in due-date order", () => {
     const sameDay = new Date("2026-06-01");
     const list = new TodoList();
     list.add("first", sameDay);
+    list.add("outlier", new Date("2026-05-01"));
     list.add("second", sameDay);
 
-    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["outlier", "first", "second"]);
   });
 
   it("keeps undated todos in the order they were added among themselves", () => {
     const list = new TodoList();
     list.add("first");
+    list.add("outlier", new Date("2026-06-01"));
     list.add("second");
 
-    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["outlier", "first", "second"]);
   });
 
   it("orders within a filter rather than replacing it", () => {
     const list = new TodoList();
     const milk = list.add("buy milk", new Date("2026-07-01"));
-    list.add("buy bread", new Date("2026-06-01"));
+    const eggs = list.add("buy eggs", new Date("2026-06-01"));
+    list.add("plan trip", new Date("2026-05-01"));
     list.complete(milk.id);
+    list.complete(eggs.id);
 
-    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy eggs", "buy milk"]);
+  });
+
+  it("orders the open filter by due date too", () => {
+    const list = new TodoList();
+    list.add("buy milk", new Date("2026-07-01"));
+    list.add("buy eggs", new Date("2026-06-01"));
+    const bread = list.add("buy bread", new Date("2026-05-01"));
+    list.complete(bread.id);
+
+    expect(list.list("open", "due-date").map((todo) => todo.title)).toEqual(["buy eggs", "buy milk"]);
   });
 
   it("answers in the order todos were added when asked with no order", () => {

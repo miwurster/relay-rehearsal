@@ -44,7 +44,7 @@ _Avoid_: query, selector, predicate.
 
 **Due-date order**: a **listing** ordered by soonest **due date** first, with every **undated** todo after every dated one.
 Todos sharing a due date, and the undated todos among themselves, keep **insertion order** relative to each other.
-Available with every **filter**; a listing asked for with no order comes back in **insertion order**.
+Available with every **filter**.
 _Avoid_: sort order, date order.
 
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
