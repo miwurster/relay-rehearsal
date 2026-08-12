@@ -317,10 +317,10 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2026-01-15");
     const list = new TodoList(() => now);
-    const second = list.add("second", new Date("2026-01-02"));
-    const first = list.add("first", new Date("2026-01-01"));
+    list.add("first", new Date("2026-01-02"));
+    list.add("second", new Date("2026-01-01"));
 
-    expect(list.overdue().map((t) => t.id)).toEqual([second.id, first.id]);
+    expect(list.overdue().map((t) => t.title)).toEqual(["first", "second"]);
   });
 
   it("measures a list constructed with no clock against the real clock", () => {
