@@ -49,6 +49,13 @@ export class TodoList {
     return [...this.todos.values()].filter((todo) => matches(todo, filter));
   }
 
+  /** The todos whose title contains the text, among those the filter asks for. */
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const folded = text.trim().toLowerCase();
+    if (folded === "") return [];
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(folded));
+  }
+
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return todo;
