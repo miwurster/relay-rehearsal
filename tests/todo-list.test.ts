@@ -401,6 +401,21 @@ describe("listing overdue todos", () => {
     expect(list.overdue().map((t) => t.title)).toEqual(["first", "second"]);
   });
 
+  it("judges every todo against the same now, even if the clock's answer changes between calls", () => {
+    const firstCall = new Date("2026-01-16");
+    const laterCall = new Date("2026-01-10");
+    let called = false;
+    const list = new TodoList(() => {
+      const now = called ? laterCall : firstCall;
+      called = true;
+      return now;
+    });
+    list.add("first", new Date("2026-01-15"));
+    list.add("second", new Date("2026-01-15"));
+
+    expect(list.overdue().map((t) => t.title)).toEqual(["first", "second"]);
+  });
+
   it("measures a list constructed with no clock against the real clock", () => {
     const list = new TodoList();
     const overdue = list.add("buy milk", new Date("2000-01-01"));

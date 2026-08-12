@@ -72,7 +72,8 @@ export class TodoList {
 
   /** The open, dated todos due before now, in the order they were added. */
   overdue(): Todo[] {
-    return this.list("open").filter((todo) => isOverdue(todo, this.clock()));
+    const now = this.clock();
+    return this.list("open").filter((todo) => isOverdue(todo, now));
   }
 
   private replace(todo: Todo): Todo {
