@@ -35,6 +35,37 @@ describe("adding a todo", () => {
 
     expect(refused.add("buy milk").id).toBe(untouched.add("buy milk").id);
   });
+
+  it("does not overwrite a remaining todo when adding after a remove", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    const third = list.add("third");
+    list.remove(first.id);
+
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(list.get(third.id).title).toBe("third");
+  });
+
+  it("hands out an id no todo in the list has ever carried, through many interleaved adds and removes", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    const d = list.add("d");
+    list.remove(b.id);
+    list.remove(d.id);
+    const e = list.add("e");
+
+    const ids = [a, c, e].map((todo) => todo.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e"]);
+    expect(list.get(c.id).title).toBe("c");
+    expect(list.get(e.id).title).toBe("e");
+  });
 });
 
 describe("reading a todo", () => {
