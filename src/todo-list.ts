@@ -4,14 +4,18 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
+/** What order a listing comes back in. */
+export type TodoOrder = "insertion" | "due-date";
+
 /** Where "now" comes from, so a caller can supply one instead of the real one. */
 export type Clock = () => Date;
 
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added unless asked for another, and adding never reorders
+ * what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -54,9 +58,11 @@ export class TodoList {
     if (!this.todos.delete(id)) throw unknownTodo(id);
   }
 
-  /** The todos the filter asks for, in the order they were added. */
-  list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(cloneTodo);
+  /** The todos the filter asks for, in the order asked for. */
+  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    const ordered = order === "due-date" ? matching.sort(compareByDueDate) : matching;
+    return ordered.map(cloneTodo);
   }
 
   /** The dated, open todos due before now, in the order they were added. */
@@ -106,4 +112,10 @@ function matches(todo: Todo, filter: TodoFilter): boolean {
 
 function isOverdue(todo: Todo, now: Date): boolean {
   return todo.dueDate !== null && !todo.completed && todo.dueDate.getTime() < now.getTime();
+}
+
+function compareByDueDate(a: Todo, b: Todo): number {
+  if (a.dueDate === null) return b.dueDate === null ? 0 : 1;
+  if (b.dueDate === null) return -1;
+  return a.dueDate.getTime() - b.dueDate.getTime();
 }
