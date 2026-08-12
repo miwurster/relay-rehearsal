@@ -36,14 +36,14 @@ export class TodoList {
     const acceptedDueDate = requireDueDate(dueDate);
     const todo: Todo = { id: this.mintId(), title: acceptedTitle, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return expose(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return expose(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -64,19 +64,19 @@ export class TodoList {
 
   /** The todos the filter asks for, in the given order. */
   list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
-    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
+    const matching = [...this.todos.values()].filter((todo) => matches(todo, filter)).map(expose);
     return order === "dueDate" ? matching.sort(compareByDueDate) : matching;
   }
 
   /** The dated, open todos due before now, in the order they were added. */
   overdue(): Todo[] {
     const now = this.clock();
-    return [...this.todos.values()].filter((todo) => isOverdue(todo, now));
+    return [...this.todos.values()].filter((todo) => isOverdue(todo, now)).map(expose);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return expose(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -97,6 +97,11 @@ function requireDueDate(dueDate: Date | undefined): Date | undefined {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
   return new Date(dueDate.getTime());
+}
+
+/** A todo safe to hand to a caller: its due date is a copy, not the list's own. */
+function expose(todo: Todo): Todo {
+  return isUndated(todo.dueDate) ? todo : { ...todo, dueDate: new Date(todo.dueDate.getTime()) };
 }
 
 function unknownTodo(id: TodoId): UnknownTodoError {
