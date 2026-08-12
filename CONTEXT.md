@@ -50,7 +50,7 @@ _Avoid_: query, selector, predicate.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
 
-**Overdue**: a dated, open **todo** whose **due date** is before the **clock**'s now.
+**Overdue**: a dated, **open** **todo** whose **due date** is before the **clock**'s now.
 A todo due exactly at now is not overdue yet.
 A completed todo is never overdue, however long past its due date.
 An **undated** todo is never overdue.
