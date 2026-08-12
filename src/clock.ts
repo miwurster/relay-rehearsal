@@ -1,4 +1,4 @@
-/** Where a listing reads "now" from, so it can be measured against a time a test can pin. */
+/** Where the todo list reads "now" from, so it can be measured against a time a test can pin. */
 export interface Clock {
   now(): Date;
 }
