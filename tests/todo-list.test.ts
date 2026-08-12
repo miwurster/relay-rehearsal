@@ -181,8 +181,10 @@ describe("searching todos", () => {
     const list = new TodoList();
     list.add("buy milk");
     list.add("buy bread");
+    list.add("buy oat milk");
 
-    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
+    expect(list.search("oat").map((todo) => todo.title)).toEqual(["buy oat milk"]);
   });
 
   it("ignores case when matching", () => {
@@ -206,6 +208,14 @@ describe("searching todos", () => {
     expect(list.search("   ")).toEqual([]);
   });
 
+  it("answers an empty listing when the text matches no title", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    expect(list.search("eggs")).toEqual([]);
+  });
+
   it("searches within a filter", () => {
     const list = new TodoList();
     const milk = list.add("buy milk");
@@ -214,6 +224,18 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("searches all todos when the filter is given explicitly", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
   });
 
   it("defaults to searching all todos", () => {
@@ -238,9 +260,9 @@ describe("searching todos", () => {
     const list = new TodoList();
     list.add("buy milk");
 
-    const results = list.search("milk");
+    const listing = list.search("milk");
     list.add("buy more milk");
 
-    expect(results).toHaveLength(1);
+    expect(listing).toHaveLength(1);
   });
 });
