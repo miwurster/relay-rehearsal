@@ -243,3 +243,63 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the supplied now", () => {
+    const now = new Date("2030-01-02");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2030-01-01"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([todo.id]);
+  });
+
+  it("excludes a dated, open todo due after the supplied now", () => {
+    const now = new Date("2030-01-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2030-01-02"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a todo due at exactly the supplied now", () => {
+    const now = new Date("2030-01-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now.getTime()));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2030-01-01");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2030-01-01");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2030-01-03");
+    const list = new TodoList(() => now);
+    const first = list.add("first", new Date("2030-01-01"));
+    list.add("undated");
+    const third = list.add("third", new Date("2030-01-02"));
+
+    expect(list.overdue().map((t) => t.id)).toEqual([first.id, third.id]);
+  });
+
+  it("measures against the real clock when constructed without one", () => {
+    const list = new TodoList();
+    list.add("buy milk", new Date(Date.now() - 1000));
+
+    expect(list.overdue()).toHaveLength(1);
+  });
+});
