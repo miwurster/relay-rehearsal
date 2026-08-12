@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
 
@@ -253,5 +253,71 @@ describe("listing todos", () => {
     list.add("buy bread");
 
     expect(listing).toHaveLength(1);
+  });
+});
+
+describe("listing overdue todos", () => {
+  it("counts a dated, open todo due before the clock's now as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-10"));
+    list.add("buy milk", new Date("2026-01-01"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("does not count a dated, open todo due after the clock's now as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-10"));
+    list.add("buy milk", new Date("2026-01-20"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a todo due exactly at the clock's now as overdue", () => {
+    const now = new Date("2026-01-10");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-01-10"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a completed todo with a long-past due date as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-10"));
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count an undated todo as overdue", () => {
+    const list = new TodoList(() => new Date("2026-01-10"));
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const list = new TodoList(() => new Date("2026-01-10"));
+    list.add("first", new Date("2026-01-01"));
+    list.add("undated");
+    list.add("second", new Date("2026-01-02"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  describe("with no clock supplied", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-01-10"));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("measures against the real clock", () => {
+      const list = new TodoList();
+      list.add("buy milk", new Date("2026-01-01"));
+
+      expect(list.overdue().map((todo) => todo.title)).toEqual(["buy milk"]);
+    });
   });
 });

@@ -31,6 +31,10 @@ _Avoid_: status, state, done flag.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
+**Clock**: how the **todo list** learns the current time, given to it as a function when it is constructed.
+A list constructed with none reads the real clock, so the ordinary case needs no wiring.
+_Avoid_: time source, now function, clock provider.
+
 **Insertion order**: the order todos were added, and the order a **listing** comes back in when it is not asked for another.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
@@ -42,3 +46,7 @@ _Avoid_: query, selector, predicate.
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Overdue**: a **todo** that is dated, open, and due before the **clock**'s now.
+A todo due exactly at now is not overdue yet, and a completed or undated todo is never overdue.
+_Avoid_: late, expired, past due.
