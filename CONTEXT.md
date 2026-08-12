@@ -34,6 +34,10 @@ _Avoid_: no due date, null date, unscheduled.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.
 
+**Clock**: where a **todo list** reads now from, supplied by the caller that constructs it.
+A todo list constructed without one reads the real clock; one constructed with one is measured against that instead.
+_Avoid_: time source, now function.
+
 **Insertion order**: the order todos were added, and the order a **listing** comes back in when it is not asked for another.
 Changing a **todo** does not move it: completing or renaming one leaves it where it was.
 _Avoid_: natural order, default order.
@@ -45,3 +49,9 @@ _Avoid_: query, selector, predicate.
 **Listing**: one answer from the **todo list** to what a caller asked of it, as a fresh array.
 Holding a listing does not hold the list: a later add does not appear in a listing already returned.
 _Avoid_: view, snapshot, result set.
+
+**Overdue**: a dated, open **todo** whose **due date** is before the **clock**'s now.
+A todo due exactly at now is not overdue yet.
+A completed todo is never overdue, however long past its due date.
+An **undated** todo is never overdue.
+_Avoid_: late, past due.
