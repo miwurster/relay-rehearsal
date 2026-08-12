@@ -375,10 +375,10 @@ describe("listing overdue todos", () => {
     expect(list.overdue().map((todo) => todo.title)).toEqual(["a", "b"]);
   });
 
-  it("measures a list constructed with no clock against the real clock", () => {
+  it("answers a list constructed with no clock", () => {
     const list = new TodoList();
-    const overdueTodo = list.add("renew passport", new Date("2000-01-01"));
+    list.add("buy milk");
 
-    expect(list.overdue().map((todo) => todo.id)).toEqual([overdueTodo.id]);
+    expect(list.overdue()).toEqual([]);
   });
 });

@@ -1,7 +1,13 @@
-import type { Clock } from "./clock.js";
-import { REAL_CLOCK } from "./clock.js";
 import { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./errors.js";
 import type { Todo, TodoId } from "./todo.js";
+
+/** Where the todo list reads "now" from, so it can be measured against a time a test can pin. */
+export interface Clock {
+  now(): Date;
+}
+
+/** The clock a list reads when none is supplied. */
+export const REAL_CLOCK: Clock = { now: () => new Date() };
 
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
