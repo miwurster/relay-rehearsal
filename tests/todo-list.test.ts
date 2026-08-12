@@ -179,10 +179,10 @@ describe("listing todos", () => {
 describe("searching todos", () => {
   it("answers todos whose title contains the text, anywhere in the title", () => {
     const list = new TodoList();
-    list.add("buy milk");
+    list.add("buy oat milk");
     list.add("buy bread");
 
-    expect(list.list("all", "milk").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.list("all", "oat").map((todo) => todo.title)).toEqual(["buy oat milk"]);
   });
 
   it("ignores case, on both the todo's title and the text searched for", () => {
@@ -190,6 +190,7 @@ describe("searching todos", () => {
     list.add("Buy Milk");
 
     expect(list.list("all", "milk").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+    expect(list.list("all", "MILK").map((todo) => todo.title)).toEqual(["Buy Milk"]);
   });
 
   it("trims the text searched for", () => {
