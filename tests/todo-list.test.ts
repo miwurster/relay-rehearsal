@@ -153,9 +153,9 @@ describe("adding a todo after removing one", () => {
     list.remove(a.id);
     const c = list.add("c");
     list.remove(b.id);
-    const d = list.add("d");
+    list.add("d");
     list.remove(c.id);
-    const e = list.add("e");
+    list.add("e");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["d", "e"]);
   });
