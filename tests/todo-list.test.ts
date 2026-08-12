@@ -128,9 +128,10 @@ describe("removing a todo", () => {
     list.add("third");
 
     list.remove(first.id);
-    list.add("fourth");
+    const fourth = list.add("fourth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(fourth.id).not.toBe(first.id);
   });
 
   it("keeps every todo distinct through many interleaved removes and adds", () => {
@@ -138,15 +139,30 @@ describe("removing a todo", () => {
     const a = list.add("a");
     const b = list.add("b");
     list.remove(a.id);
-    list.add("c");
+    const c = list.add("c");
     list.remove(b.id);
-    list.add("d");
+    const d = list.add("d");
     list.add("e");
-    const d = list.list().find((todo) => todo.title === "d")!;
     list.remove(d.id);
-    list.add("f");
+    const f = list.add("f");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
+    expect(c.id).not.toBe(a.id);
+    expect(f.id).not.toBe(d.id);
+  });
+
+  it("lets the list grow again after every todo is removed", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+
+    list.remove(first.id);
+    list.remove(second.id);
+    const third = list.add("third");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["third"]);
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
   });
 });
 
