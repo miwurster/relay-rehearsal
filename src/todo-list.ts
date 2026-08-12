@@ -16,17 +16,17 @@ export class TodoList {
   /** Add a todo with the given title and optional due date, and answer the todo that was added. */
   add(title: string, dueDate?: Date): Todo {
     const accepted = requireTitle(title);
-    const acceptedDueDate = requireUsableDueDate(dueDate);
+    const acceptedDueDate = cloneDueDate(requireUsableDueDate(dueDate));
     const todo: Todo = { id: this.mintId(), title: accepted, completed: false, dueDate: acceptedDueDate };
     this.todos.set(todo.id, todo);
-    return todo;
+    return exposeTodo(todo);
   }
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
     const todo = this.todos.get(id);
     if (todo === undefined) throw unknownTodo(id);
-    return todo;
+    return exposeTodo(todo);
   }
 
   rename(id: TodoId, title: string): Todo {
@@ -47,12 +47,12 @@ export class TodoList {
 
   /** The todos the filter asks for, in the order they were added. */
   list(filter: TodoFilter = "all"): Todo[] {
-    return [...this.todos.values()].filter((todo) => matches(todo, filter));
+    return [...this.todos.values()].filter((todo) => matches(todo, filter)).map(exposeTodo);
   }
 
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
-    return todo;
+    return exposeTodo(todo);
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
@@ -77,6 +77,15 @@ function requireUsableDueDate(dueDate: Date | undefined): Date | undefined {
     throw new InvalidDueDateError("A due date needs to be a usable point in time.");
   }
   return dueDate;
+}
+
+/** A todo handed to a caller, its due date a copy so neither side's mutation reaches the other. */
+function exposeTodo(todo: Todo): Todo {
+  return { ...todo, dueDate: cloneDueDate(todo.dueDate) };
+}
+
+function cloneDueDate(dueDate: Date | undefined): Date | undefined {
+  return dueDate === undefined ? undefined : new Date(dueDate.getTime());
 }
 
 function matches(todo: Todo, filter: TodoFilter): boolean {

@@ -21,6 +21,26 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(dueDate);
   });
 
+  it("keeps its due date when the caller's Date is later mutated", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(2099);
+
+    expect(todo.dueDate).toEqual(new Date("2026-01-01"));
+  });
+
+  it("keeps its due date when a due date handed back is mutated", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    added.dueDate!.setFullYear(2099);
+
+    expect(list.get(added.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
   it("is undated when added without a due date", () => {
     const list = new TodoList();
 
