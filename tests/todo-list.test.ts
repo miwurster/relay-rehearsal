@@ -120,6 +120,34 @@ describe("removing a todo", () => {
 
     expect(() => list.remove("nope")).toThrow(UnknownTodoError);
   });
+
+  it("leaves every remaining todo in place when an add follows a remove", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    list.add("second");
+    list.add("third");
+
+    list.remove(first.id);
+    list.add("fourth");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+  });
+
+  it("keeps every todo distinct through many interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    list.add("c");
+    list.remove(b.id);
+    list.add("d");
+    list.add("e");
+    const d = list.list().find((todo) => todo.title === "d")!;
+    list.remove(d.id);
+    list.add("f");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c", "e", "f"]);
+  });
 });
 
 describe("listing todos", () => {
