@@ -277,7 +277,6 @@ describe("listing overdue todos", () => {
     const overdueTodos = list.overdue();
 
     expect(overdueTodos.map((todo) => todo.id)).toEqual([overdue.id]);
-    expect(overdueTodos.map((todo) => todo.id)).not.toContain(notYet.id);
   });
 
   it("does not count a todo due exactly at now as overdue", () => {
@@ -308,9 +307,9 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2026-06-15");
     const list = new TodoList(fixedClock(now));
-    list.add("first", new Date("2026-06-01"));
+    list.add("first", new Date("2026-06-02"));
     list.add("undated");
-    list.add("second", new Date("2026-06-02"));
+    list.add("second", new Date("2026-06-01"));
 
     expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
   });
