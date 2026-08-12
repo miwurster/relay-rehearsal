@@ -1,4 +1,4 @@
 export { InvalidDueDateError, InvalidTitleError, UnknownTodoError } from "./errors.js";
 export type { Todo, TodoId } from "./todo.js";
 export { TodoList } from "./todo-list.js";
-export type { Clock, TodoFilter } from "./todo-list.js";
+export type { Clock, ListOrder, TodoFilter } from "./todo-list.js";
