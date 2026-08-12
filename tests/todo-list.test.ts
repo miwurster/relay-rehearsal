@@ -123,6 +123,18 @@ describe("removing a todo", () => {
 });
 
 describe("adding a todo after removing one", () => {
+  it("keeps every remaining todo after removing the first and adding a fourth", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    list.add("b");
+    list.add("c");
+
+    list.remove(a.id);
+    list.add("d");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["b", "c", "d"]);
+  });
+
   it("keeps every remaining todo through several interleaved removes and adds", () => {
     const list = new TodoList();
     const a = list.add("a");
