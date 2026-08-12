@@ -301,6 +301,16 @@ describe("listing todos in due-date order", () => {
     expect(list.list("open", "due-date")).toEqual([soonest, later]);
   });
 
+  it("orders the completed filter by due date too", () => {
+    const list = new TodoList();
+    const later = list.add("later", new Date("2026-09-01"));
+    const soonest = list.add("soonest", new Date("2026-06-01"));
+    const completedLater = list.complete(later.id);
+    const completedSoonest = list.complete(soonest.id);
+
+    expect(list.list("completed", "due-date")).toEqual([completedSoonest, completedLater]);
+  });
+
   it("answers a listing asked for with no order in the order todos were added", () => {
     const list = new TodoList();
     list.add("later", new Date("2026-09-01"));
