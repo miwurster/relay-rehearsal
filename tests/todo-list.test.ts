@@ -264,3 +264,55 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("listing overdue todos", () => {
+  it("includes a dated, open todo due before the supplied now, and excludes one due after it", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList({ now: () => now });
+    const late = list.add("renew passport", new Date("2026-06-01"));
+    list.add("plan trip", new Date("2026-07-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([late.id]);
+  });
+
+  it("excludes a todo due exactly at the supplied now", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList({ now: () => now });
+    list.add("renew passport", now);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes a completed todo with a long-past due date", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList({ now: () => now });
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("excludes an undated todo", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList({ now: () => now });
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList({ now: () => now });
+    const second = list.add("second", new Date("2026-01-01"));
+    const first = list.add("first", new Date("2026-01-02"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["second", "first"]);
+  });
+
+  it("measures a list constructed with no clock against the real clock", () => {
+    const list = new TodoList();
+    const overdueTodo = list.add("renew passport", new Date("2000-01-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([overdueTodo.id]);
+  });
+});
