@@ -289,9 +289,9 @@ describe("listing overdue todos", () => {
   it("answers overdue todos in the order they were added", () => {
     const now = new Date("2030-01-03");
     const list = new TodoList(() => now);
-    const first = list.add("first", new Date("2030-01-01"));
+    const first = list.add("first", new Date("2030-01-02"));
     list.add("undated");
-    const third = list.add("third", new Date("2030-01-02"));
+    const third = list.add("third", new Date("2030-01-01"));
 
     expect(list.overdue().map((t) => t.id)).toEqual([first.id, third.id]);
   });
