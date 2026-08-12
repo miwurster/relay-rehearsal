@@ -8,9 +8,19 @@ It names only the terms this repo coins or overloads — terms carrying their or
 Every entry keeps one shape: the bold term and its definition on one line, each further fact on its own line, then an `_Avoid_:` line of the synonyms this repo does not use.
 Where a named error refuses a value, the entry names that error, as **Title** does.
 
-**Todo**: one thing somebody means to do, carrying an **id**, a **title** and its completion.
+**Todo**: one thing somebody means to do, carrying an **id**, a **title**, its completion, and a **due date**.
 A todo is read-only to callers: the **todo list** replaces it rather than mutating it, so a todo handed out earlier never changes underneath the code holding it.
 _Avoid_: task, item, entry.
+
+**Due date**: when a **todo** is meant to be done, set only when the todo is added.
+It is optional: a todo added without one is **undated**, not a due date waiting to be supplied.
+A due date in the past is ordinary, not an error.
+A due date that is not a usable point in time is refused with `InvalidDueDateError`.
+Renaming, completing and reopening a todo all leave its due date as it was added.
+_Avoid_: deadline, target date.
+
+**Undated**: a **todo** added without a **due date**, a state of its own rather than a date left blank.
+_Avoid_: no due date, null date.
 
 **Title**: the sentence a **todo** is named by, trimmed of surrounding whitespace and never empty.
 A title that is empty once trimmed is not a title, and is refused with `InvalidTitleError`.

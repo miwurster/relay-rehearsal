@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
+import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
 
 describe("adding a todo", () => {
   it("adds it open, under a title trimmed of its whitespace", () => {
@@ -10,6 +10,39 @@ describe("adding a todo", () => {
 
     expect(todo.title).toBe("buy milk");
     expect(todo.completed).toBe(false);
+  });
+
+  it("carries the due date it was added with", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+
+    expect(todo.dueDate).toEqual(dueDate);
+  });
+
+  it("is undated when added without a due date", () => {
+    const list = new TodoList();
+
+    const todo = list.add("buy milk");
+
+    expect(todo.dueDate).toBeUndefined();
+  });
+
+  it("accepts a due date in the past", () => {
+    const list = new TodoList();
+    const pastDueDate = new Date("2000-01-01");
+
+    const todo = list.add("buy milk", pastDueDate);
+
+    expect(todo.dueDate).toEqual(pastDueDate);
+  });
+
+  it("refuses a due date that is not a usable point in time", () => {
+    const list = new TodoList();
+
+    expect(() => list.add("buy milk", new Date("not a date"))).toThrow(InvalidDueDateError);
+    expect(list.list()).toHaveLength(0);
   });
 
   it("gives every todo an id of its own", () => {
@@ -70,6 +103,16 @@ describe("renaming a todo", () => {
     expect(() => list.rename(added.id, "")).toThrow(InvalidTitleError);
     expect(list.get(added.id).title).toBe("buy milk");
   });
+
+  it("leaves its due date as it was added", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    const renamed = list.rename(added.id, "buy oat milk");
+
+    expect(renamed.dueDate).toEqual(dueDate);
+  });
 });
 
 describe("completing and reopening a todo", () => {
@@ -78,6 +121,23 @@ describe("completing and reopening a todo", () => {
     const added = list.add("buy milk");
 
     expect(list.complete(added.id).completed).toBe(true);
+  });
+
+  it("leaves the due date it was added with when completed", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+
+    expect(list.complete(added.id).dueDate).toEqual(dueDate);
+  });
+
+  it("leaves the due date it was added with when reopened", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+    const added = list.add("buy milk", dueDate);
+    list.complete(added.id);
+
+    expect(list.reopen(added.id).dueDate).toEqual(dueDate);
   });
 
   it("reopens a completed todo", () => {
@@ -95,6 +155,15 @@ describe("completing and reopening a todo", () => {
     list.complete(added.id);
 
     expect(added.completed).toBe(false);
+  });
+
+  it("does not give the todo handed out earlier a due date", () => {
+    const list = new TodoList();
+    const added = list.add("buy milk");
+
+    list.complete(added.id);
+
+    expect(added.dueDate).toBeUndefined();
   });
 
   it("refuses an id the list does not hold", () => {
