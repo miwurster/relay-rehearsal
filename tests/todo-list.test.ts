@@ -306,10 +306,10 @@ describe("listing todos in due-date order", () => {
 
   it("answers a listing asked for with no order in the order todos were added", () => {
     const list = new TodoList();
-    const later = list.add("second", new Date("2026-01-01"));
-    const sooner = list.add("first", new Date("2000-01-01"));
+    const first = list.add("first", new Date("2026-01-01"));
+    const second = list.add("second", new Date("2000-01-01"));
 
-    expect(list.list().map((todo) => todo.id)).toEqual([later.id, sooner.id]);
+    expect(list.list().map((todo) => todo.id)).toEqual([first.id, second.id]);
   });
 });
 
