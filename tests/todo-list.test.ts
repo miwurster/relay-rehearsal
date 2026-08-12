@@ -265,6 +265,58 @@ describe("listing todos", () => {
   });
 });
 
+describe("listing todos in due-date order", () => {
+  it("answers dated todos soonest due date first, whatever order they were added in", () => {
+    const list = new TodoList();
+    list.add("plan trip", new Date("2026-07-01"));
+    list.add("renew passport", new Date("2026-06-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["renew passport", "plan trip"]);
+  });
+
+  it("answers every undated todo after every dated one", () => {
+    const list = new TodoList();
+    list.add("someday");
+    list.add("renew passport", new Date("2026-06-01"));
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["renew passport", "someday"]);
+  });
+
+  it("keeps todos sharing a due date in the order they were added", () => {
+    const sameDay = new Date("2026-06-01");
+    const list = new TodoList();
+    list.add("first", sameDay);
+    list.add("second", sameDay);
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("keeps undated todos in the order they were added among themselves", () => {
+    const list = new TodoList();
+    list.add("first");
+    list.add("second");
+
+    expect(list.list("all", "due-date").map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("orders within a filter rather than replacing it", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk", new Date("2026-07-01"));
+    list.add("buy bread", new Date("2026-06-01"));
+    list.complete(milk.id);
+
+    expect(list.list("completed", "due-date").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("answers in the order todos were added when asked with no order", () => {
+    const list = new TodoList();
+    list.add("plan trip", new Date("2026-07-01"));
+    list.add("renew passport", new Date("2026-06-01"));
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["plan trip", "renew passport"]);
+  });
+});
+
 describe("listing overdue todos", () => {
   it("includes a dated, open todo due before the supplied now, and excludes one due after it", () => {
     const now = new Date("2026-06-15");
