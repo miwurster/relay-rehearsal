@@ -29,6 +29,14 @@ _Avoid_: deadline, target date.
 **Undated**: the state of a **todo** added without a **due date** — a state of its own, not a date waiting to be supplied.
 _Avoid_: no date, null date, missing date.
 
+**Overdue**: a **todo** that is open, dated, and due before the **clock**'s now.
+A todo due exactly at now is not overdue yet, and a completed todo is never overdue.
+_Avoid_: late, expired.
+
+**Clock**: the source of "now" a **todo list** measures **overdue** against, supplied to it at construction.
+A todo list constructed without one reads the real clock.
+_Avoid_: time source, now provider.
+
 **Todo list**: the whole collection, and the only thing that creates a **todo** or changes one.
 It hands out the **id**s itself, so nothing outside it invents one.
 _Avoid_: store, repository, collection, database.

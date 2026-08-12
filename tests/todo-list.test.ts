@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import type { Clock } from "../src/index.js";
 import { InvalidDueDateError, InvalidTitleError, TodoList, UnknownTodoError } from "../src/index.js";
+
+function fixedClock(now: Date): Clock {
+  return { now: () => now };
+}
 
 describe("adding a todo", () => {
   it("adds it open, under a title trimmed of its whitespace", () => {
@@ -259,5 +264,62 @@ describe("listing todos", () => {
     list.add("buy bread");
 
     expect(listing).toHaveLength(1);
+  });
+});
+
+describe("listing overdue todos", () => {
+  it("counts a dated, open todo due before now as overdue", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(fixedClock(now));
+    const overdue = list.add("buy milk", new Date("2026-06-14"));
+    const notYet = list.add("buy bread", new Date("2026-06-16"));
+
+    const overdueTodos = list.overdue();
+
+    expect(overdueTodos.map((todo) => todo.id)).toEqual([overdue.id]);
+    expect(overdueTodos.map((todo) => todo.id)).not.toContain(notYet.id);
+  });
+
+  it("does not count a todo due exactly at now as overdue", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(fixedClock(now));
+    list.add("buy milk", new Date(now));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a completed todo as overdue, however long past its due date", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(fixedClock(now));
+    const milk = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(milk.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count an undated todo as overdue", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(fixedClock(now));
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-06-15");
+    const list = new TodoList(fixedClock(now));
+    list.add("first", new Date("2026-06-01"));
+    list.add("undated");
+    list.add("second", new Date("2026-06-02"));
+
+    expect(list.overdue().map((todo) => todo.title)).toEqual(["first", "second"]);
+  });
+
+  it("measures against the real clock when constructed with none", () => {
+    const list = new TodoList();
+    const longPast = list.add("long past", new Date("2000-01-01"));
+    list.add("far future", new Date("3000-01-01"));
+
+    expect(list.overdue().map((todo) => todo.id)).toEqual([longPast.id]);
   });
 });
