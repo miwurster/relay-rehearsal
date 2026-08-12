@@ -53,9 +53,7 @@ export class TodoList {
   search(text: string, filter: TodoFilter = "all"): Todo[] {
     const folded = text.trim().toLowerCase();
     if (folded === "") return [];
-    return [...this.todos.values()].filter(
-      (todo) => matches(todo, filter) && todo.title.toLowerCase().includes(folded),
-    );
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(folded));
   }
 
   private replace(todo: Todo): Todo {

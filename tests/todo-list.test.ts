@@ -253,4 +253,28 @@ describe("searching todos", () => {
 
     expect(listing).toHaveLength(1);
   });
+
+  it("leaves the list answering the same listing before and after a search", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy bread");
+    list.complete(milk.id);
+
+    const before = list.list();
+    list.search("milk");
+
+    expect(list.list()).toEqual(before);
+  });
+
+  it("searches within every todo when asked for all, open and completed alike", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual([
+      "buy milk",
+      "buy oat milk",
+    ]);
+  });
 });
