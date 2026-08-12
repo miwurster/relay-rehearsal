@@ -122,6 +122,48 @@ describe("removing a todo", () => {
   });
 });
 
+describe("adding a todo after removing one", () => {
+  it("keeps every remaining todo through several interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    list.add("b");
+    const c = list.add("c");
+    list.add("d");
+
+    list.remove(a.id);
+    list.remove(c.id);
+    list.add("e");
+    list.add("f");
+    list.add("g");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["b", "d", "e", "f", "g"]);
+  });
+
+  it("never mints an id it has already spent, across interleaved removes and adds", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    const c = list.add("c");
+    const d = list.add("d");
+
+    expect(new Set([a.id, b.id, c.id, d.id]).size).toBe(4);
+  });
+
+  it("mints a fresh id after every todo has been removed", () => {
+    const list = new TodoList();
+    const a = list.add("a");
+    const b = list.add("b");
+    list.remove(a.id);
+    list.remove(b.id);
+
+    const c = list.add("c");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["c"]);
+    expect([a.id, b.id]).not.toContain(c.id);
+  });
+});
+
 describe("listing todos", () => {
   it("answers them in the order they were added", () => {
     const list = new TodoList();
