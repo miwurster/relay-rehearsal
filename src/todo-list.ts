@@ -41,21 +41,19 @@ export class TodoList {
 
   /** The todo with that id, or a thrown `UnknownTodoError` if the list holds none. */
   get(id: TodoId): Todo {
-    const todo = this.todos.get(id);
-    if (todo === undefined) throw unknownTodo(id);
-    return expose(todo);
+    return expose(this.stored(id));
   }
 
   rename(id: TodoId, title: string): Todo {
-    return this.replace({ ...this.get(id), title: requireTitle(title) });
+    return this.replace({ ...this.stored(id), title: requireTitle(title) });
   }
 
   complete(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: true });
+    return this.replace({ ...this.stored(id), completed: true });
   }
 
   reopen(id: TodoId): Todo {
-    return this.replace({ ...this.get(id), completed: false });
+    return this.replace({ ...this.stored(id), completed: false });
   }
 
   remove(id: TodoId): void {
@@ -77,6 +75,13 @@ export class TodoList {
   private replace(todo: Todo): Todo {
     this.todos.set(todo.id, todo);
     return expose(todo);
+  }
+
+  /** The list's own todo with that id, uncopied — for internal reads only. */
+  private stored(id: TodoId): Todo {
+    const todo = this.todos.get(id);
+    if (todo === undefined) throw unknownTodo(id);
+    return todo;
   }
 
   /** The next unused id. Only a todo that is about to be added takes one. */
