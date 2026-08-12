@@ -79,6 +79,15 @@ describe("adding a todo", () => {
     expect(todo.dueDate).toEqual(new Date("2026-01-01"));
     expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
   });
+
+  it("does not let a caller mutating a returned dueDate change the todo underneath earlier holders", () => {
+    const list = new TodoList();
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    list.get(todo.id).dueDate?.setFullYear(1999);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
 });
 
 describe("reading a todo", () => {
