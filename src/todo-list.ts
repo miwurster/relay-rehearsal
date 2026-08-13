@@ -50,10 +50,10 @@ export class TodoList {
   }
 
   /** The todos within the filter whose title contains the text, in the order they were added. */
-  search(query: string, filter: TodoFilter = "all"): Todo[] {
-    const needle = query.trim().toLowerCase();
-    if (needle === "") return [];
-    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(needle));
+  search(text: string, filter: TodoFilter = "all"): Todo[] {
+    const trimmed = text.trim().toLowerCase();
+    if (trimmed === "") return [];
+    return this.list(filter).filter((todo) => todo.title.toLowerCase().includes(trimmed));
   }
 
   private replace(todo: Todo): Todo {

@@ -214,6 +214,7 @@ describe("searching todos", () => {
 
     expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
     expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+    expect(list.search("milk", "all").map((todo) => todo.title)).toEqual(["buy milk", "buy oat milk"]);
   });
 
   it("answers matches in the order they were added", () => {
