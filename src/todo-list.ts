@@ -13,8 +13,9 @@ export type Clock = () => Date;
 /**
  * A list of todos, held in memory, with ids it hands out itself.
  *
- * Insertion order is the list's order: `list` returns todos in the order they
- * were added, and adding never reorders what is already there.
+ * Insertion order is the list's default order: `list` returns todos in the
+ * order they were added unless another order is asked for, and adding never
+ * reorders what is already there.
  */
 export class TodoList {
   private readonly todos = new Map<TodoId, Todo>();
@@ -124,7 +125,7 @@ function isOverdue(todo: Todo, now: Date): boolean {
 
 /** Dated todos soonest due date first, then every undated todo; ties keep insertion order. */
 function byDueDate(todos: Todo[]): Todo[] {
-  return [...todos].sort((a, b) => {
+  return todos.sort((a, b) => {
     if (a.dueDate === undefined) return b.dueDate === undefined ? 0 : 1;
     if (b.dueDate === undefined) return -1;
     return a.dueDate.getTime() - b.dueDate.getTime();
