@@ -260,3 +260,64 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("asking which todos are overdue", () => {
+  it("counts a dated, open todo due before the supplied now as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2026-01-01"));
+
+    expect(list.overdue()).toEqual([todo]);
+  });
+
+  it("does not count a dated, open todo due after the supplied now as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date("2026-02-01"));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a todo due exactly at the supplied now as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk", new Date(now));
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count a completed todo with a long-past due date as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    const todo = list.add("buy milk", new Date("2000-01-01"));
+    list.complete(todo.id);
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("does not count an undated todo as overdue", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("buy milk");
+
+    expect(list.overdue()).toEqual([]);
+  });
+
+  it("answers overdue todos in the order they were added", () => {
+    const now = new Date("2026-01-15");
+    const list = new TodoList(() => now);
+    list.add("not overdue", new Date("2026-02-01"));
+    const first = list.add("first overdue", new Date("2026-01-01"));
+    const second = list.add("second overdue", new Date("2026-01-02"));
+
+    expect(list.overdue()).toEqual([first, second]);
+  });
+
+  it("measures a list built with no clock against the real one", () => {
+    const list = new TodoList();
+    const overdue = list.add("long past", new Date("1970-01-01"));
+    list.add("far future", new Date("3000-01-01"));
+
+    expect(list.overdue()).toEqual([overdue]);
+  });
+});
