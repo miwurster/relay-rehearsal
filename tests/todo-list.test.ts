@@ -42,7 +42,7 @@ describe("adding a todo", () => {
 
     const todo = list.add("buy milk", dueDate);
 
-    expect(todo.dueDate).toBe(dueDate);
+    expect(todo.dueDate).toEqual(dueDate);
   });
 
   it("comes back undated when no due date was given", () => {
@@ -59,7 +59,7 @@ describe("adding a todo", () => {
 
     const todo = list.add("buy milk", pastDueDate);
 
-    expect(todo.dueDate).toBe(pastDueDate);
+    expect(todo.dueDate).toEqual(pastDueDate);
   });
 
   it("refuses a due date that is not a usable point in time", () => {
@@ -67,6 +67,26 @@ describe("adding a todo", () => {
 
     expect(() => list.add("buy milk", new Date("not a date"))).toThrow(InvalidDueDateError);
     expect(list.list()).toHaveLength(0);
+  });
+
+  it("does not gain or change a due date underneath a caller when they mutate the date they passed in", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    dueDate.setFullYear(1999);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
+  });
+
+  it("does not let a caller change the stored due date by mutating the todo handed back", () => {
+    const list = new TodoList();
+    const dueDate = new Date("2026-01-01");
+
+    const todo = list.add("buy milk", dueDate);
+    todo.dueDate?.setFullYear(1999);
+
+    expect(list.get(todo.id).dueDate).toEqual(new Date("2026-01-01"));
   });
 });
 
@@ -111,7 +131,7 @@ describe("renaming a todo", () => {
 
     const renamed = list.rename(added.id, "buy oat milk");
 
-    expect(renamed.dueDate).toBe(dueDate);
+    expect(renamed.dueDate).toEqual(dueDate);
   });
 });
 
@@ -155,8 +175,8 @@ describe("completing and reopening a todo", () => {
     const completed = list.complete(added.id);
     const reopened = list.reopen(added.id);
 
-    expect(completed.dueDate).toBe(dueDate);
-    expect(reopened.dueDate).toBe(dueDate);
+    expect(completed.dueDate).toEqual(dueDate);
+    expect(reopened.dueDate).toEqual(dueDate);
   });
 
   it("does not change the due date of a todo handed out earlier", () => {
@@ -166,7 +186,7 @@ describe("completing and reopening a todo", () => {
 
     list.complete(added.id);
 
-    expect(added.dueDate).toBe(dueDate);
+    expect(added.dueDate).toEqual(dueDate);
   });
 });
 
