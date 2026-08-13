@@ -4,8 +4,8 @@ import type { Todo, TodoId } from "./todo.js";
 /** Which todos a listing asks for. */
 export type TodoFilter = "all" | "open" | "completed";
 
-/** What order a listing comes back in. */
-export type TodoOrder = "insertion" | "dueDate";
+/** What order a listing comes back in, when not left at its default insertion order. */
+export type TodoOrder = "dueDate";
 
 /** The current point in time, as the list should measure overdue-ness against. */
 export type Clock = () => Date;
@@ -68,7 +68,7 @@ export class TodoList {
   }
 
   /** The todos the filter asks for, in the given order. */
-  list(filter: TodoFilter = "all", order: TodoOrder = "insertion"): Todo[] {
+  list(filter: TodoFilter = "all", order?: TodoOrder): Todo[] {
     const matching = [...this.todos.values()].filter((todo) => matches(todo, filter));
     return (order === "dueDate" ? byDueDate(matching) : matching).map(present);
   }

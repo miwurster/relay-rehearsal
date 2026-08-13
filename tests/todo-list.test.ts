@@ -64,9 +64,10 @@ describe("adding a todo", () => {
 
   it("refuses a due date that is not a usable point in time", () => {
     const list = new TodoList();
+    const existing = list.add("buy milk");
 
-    expect(() => list.add("buy milk", new Date("not a date"))).toThrow(InvalidDueDateError);
-    expect(list.list()).toHaveLength(0);
+    expect(() => list.add("buy eggs", new Date("not a date"))).toThrow(InvalidDueDateError);
+    expect(list.list()).toEqual([existing]);
   });
 
   it("does not gain or change a due date underneath a caller when they mutate the date they passed in", () => {
