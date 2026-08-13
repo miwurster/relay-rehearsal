@@ -133,6 +133,7 @@ describe("adding a todo after removing one", () => {
     const fourth = list.add("fourth");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["second", "third", "fourth"]);
+    expect(fourth.id).not.toBe(first.id);
     expect(fourth.id).not.toBe(second.id);
     expect(fourth.id).not.toBe(third.id);
   });
@@ -150,6 +151,22 @@ describe("adding a todo after removing one", () => {
     const f = list.add("f");
 
     expect(list.list().map((todo) => todo.title)).toEqual(["d", "e", "f"]);
+    expect([d.id, e.id, f.id]).not.toContain(a.id);
+    expect([d.id, e.id, f.id]).not.toContain(b.id);
+    expect([d.id, e.id, f.id]).not.toContain(c.id);
+  });
+
+  it("never hands a removed todo's id to a todo added after the list is emptied", () => {
+    const list = new TodoList();
+    const first = list.add("first");
+    const second = list.add("second");
+    list.remove(first.id);
+    list.remove(second.id);
+
+    const third = list.add("third");
+
+    expect(third.id).not.toBe(first.id);
+    expect(third.id).not.toBe(second.id);
   });
 });
 
