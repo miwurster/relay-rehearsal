@@ -175,3 +175,86 @@ describe("listing todos", () => {
     expect(listing).toHaveLength(1);
   });
 });
+
+describe("searching todos", () => {
+  it("answers the todos whose title contains the text", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+    list.add("buy bread");
+
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("matches case-insensitively", () => {
+    const list = new TodoList();
+    list.add("Buy Milk");
+
+    expect(list.search("MILK").map((todo) => todo.title)).toEqual(["Buy Milk"]);
+  });
+
+  it("trims the text searched for", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.search("  milk  ").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("matches nothing when the text is empty once trimmed", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.search("   ")).toEqual([]);
+  });
+
+  it("composes with a filter", () => {
+    const list = new TodoList();
+    const milk = list.add("buy milk");
+    list.add("buy oat milk");
+    list.complete(milk.id);
+
+    expect(list.search("milk", "open").map((todo) => todo.title)).toEqual(["buy oat milk"]);
+    expect(list.search("milk", "completed").map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+
+  it("answers matches in the order they were added", () => {
+    const list = new TodoList();
+    list.add("buy oat milk");
+    list.add("buy bread");
+    list.add("buy milk");
+
+    expect(list.search("milk").map((todo) => todo.title)).toEqual(["buy oat milk", "buy milk"]);
+  });
+
+  it("answers a fresh listing that a later add does not reach", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    const found = list.search("milk");
+    list.add("buy more milk");
+
+    expect(found).toHaveLength(1);
+  });
+
+  it("matches text found anywhere in the title", () => {
+    const list = new TodoList();
+    list.add("buy organic milk");
+
+    expect(list.search("organic").map((todo) => todo.title)).toEqual(["buy organic milk"]);
+  });
+
+  it("answers an empty listing when nothing matches", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    expect(list.search("bread")).toEqual([]);
+  });
+
+  it("changes nothing about the list", () => {
+    const list = new TodoList();
+    list.add("buy milk");
+
+    list.search("milk");
+
+    expect(list.list().map((todo) => todo.title)).toEqual(["buy milk"]);
+  });
+});
